@@ -1,0 +1,126 @@
+{
+  "projectId": "435445593819640295",
+  "projectTitle": "Product Detail Page",
+  "designTheme": {
+    "colorMode": "DARK",
+    "font": "INTER",
+    "roundness": "ROUND_EIGHT",
+    "customColor": "#0db9f2",
+    "saturation": 2
+  },
+  "screens": [
+    {
+      "id": "be6d48162033489dbcf97b6b2fe6a0b4",
+      "title": "Digital Marketplace Homepage (Dark)",
+      "width": 2560,
+      "height": 4016,
+      "deviceType": "DESKTOP",
+      "screenshotUrl": "https://lh3.googleusercontent.com/aida/AOfcidXgCYpAV6y6RBv9t1wbl4ASlhr6IhK71DeoVoEJjzphezDJ4Yl4HS4hu8vmiInaG_kqeuoKac8yHw6rG71k8aGD2XDMLHGr1KY-g4_UTW13vEEkz0lKlwONPzi7a3Vvae04gIRo9mUXJftVc62SA9x0U_6t0df9d0zj7_yLHWWN41bqYwS636SIyQj_Xfs_6Si1QnU0zKk_6Kq3yUGIIC3EhOSso0OUhmVjcErXodzA7xIqrlTceHJY",
+      "htmlCodeUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ6Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpZCiVodG1sX2EyMGJhZDlkYmM4MjQ2NTg5YjIxZTAxOTM5YzNlNTAyEgsSBxCOlr7llxQYAZIBIgoKcHJvamVjdF9pZBIUQhI0MzU0NDU1OTM4MTk2NDAyOTU&filename=&opi=89354086"
+    },
+    {
+      "id": "7c8f869d3d8f45369aede87616e8ea76",
+      "title": "Product Detail Page (Dark)",
+      "width": 2560,
+      "height": 4522,
+      "deviceType": "DESKTOP",
+      "screenshotUrl": "https://lh3.googleusercontent.com/aida/AOfcidWM-kTZxlzB4achEqs2vaE6f1cXFf3eUQ-0ws6UydL45q0LX5H8meSqfgyYv-MuIlrbGc21MjPM6HfIpFfk5G2KhYqWpBfp5TsTzt1KeM56Rw76-a7b85IxFdAY4B9tCOoXEpWsMdazoPfcZWBG4O6Eipa8EAJoK3b9eaER5mfZaW8pGN7-VfiomhBjjXUn4e5vebQjOJix9YiMrf9gw7jIFe4BIfPXkdRLUoVIyvx4OXQujOPu4MAz",
+      "htmlCodeUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ6Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpZCiVodG1sXzcyYzc2ZmQyODI2YzQwMzE5ZDRhZDFmMzc0Y2ZlNmYwEgsSBxCOlr7llxQYAZIBIgoKcHJvamVjdF9pZBIUQhI0MzU0NDU1OTM4MTk2NDAyOTU&filename=&opi=89354086"
+    },
+    {
+      "id": "2d0e4fdcdc14464988e65f2620944fb3",
+      "title": "DigiMarket Home - Light Mode",
+      "width": 2560,
+      "height": 4794,
+      "deviceType": "DESKTOP",
+      "screenshotUrl": "https://lh3.googleusercontent.com/aida/AOfcidXIZlZy5OpYZcHuugX0xr1G9ybPzgXqi9ZvaICECc-jxbby5RyUOXKrmlcebX9x5PBZ40OdKK4I3KxIhcbl5dzi_Q_ly6YtTmqNbFqPcVP3rJshEPtgHnlr4V0lDRkriTY469y5VEwMsFp5ri0p_DPBUB0bNH56q9Q9UZboy35mRLlqDcUAk-i_tFtX54AquuouUxEXU6RLZpIqdzqTEVynjNjQIxDXy1Ya5UvWS0j8jp9eDBxU4UAv",
+      "htmlCodeUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ6Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpZCiVodG1sXzBjZGMzZDc4ZGIwNDQ1NWY4ZmIxZGViNTAwOTVlNTZlEgsSBxCOlr7llxQYAZIBIgoKcHJvamVjdF9pZBIUQhI0MzU0NDU1OTM4MTk2NDAyOTU&filename=&opi=89354086"
+    },
+    {
+      "id": "35866279a73e4aa3874a41f7b3fcecad",
+      "title": "Category & Filter View (Dark)",
+      "width": 2560,
+      "height": 3086,
+      "deviceType": "DESKTOP",
+      "screenshotUrl": "https://lh3.googleusercontent.com/aida/AOfcidXUUgySjjqMiss8_y5rGkdG3k5gxnaKiJzXV6SiJqwttA_Yip3uYBP8PKrF1_sjsGsEt93ZkN-XB36qx_Nn8iW-JAADJOl6bMDsBaGueiEAQmeG8VYcz4vE-Oqx8yjBZi4T49t07shxj_dnQalq-sgCTWY6ZGduu4lQGfR8_JBmwPMC1rcG7MOLf6mthUrl7t1k5rLQqw-QNuNYlC7fMl7qsSG1NSQ0eD7yV28g0bIhX3H2-US5HCg8_w",
+      "htmlCodeUrl": "https://contribution.usercontent.google.com/download?c=CgthaWRhX2NvZGVmeBJ6Eh1hcHBfY29tcGFuaW9uX2dlbmVyYXRlZF9maWxlcxpZCiVodG1sX2ZlNGI0NjFlODk4NzQ1MzI5NGQxNjg3NWI1YzJlNTJhEgsSBxCOlr7llxQYAZIBIgoKcHJvamVjdF9pZBIUQhI0MzU0NDU1OTM4MTk2NDAyOTU&filename=&opi=89354086"
+    },
+    {
+      "id": "49e9e63b83394349a61e33c41c429026",
+      "title": "DigiMarket Mobile Category - Light",
+      "width": 2560,
+      "height": 2130,
+      "deviceType": "DESKTOP"
+    },
+    {
+      "id": "5ae5a6a983b445dc97da5edd85b25ed7",
+      "title": "DigiMarket Mobile Home - Light",
+      "width": 2560,
+      "height": 5580,
+      "deviceType": "DESKTOP"
+    },
+    {
+      "id": "77aedf663ff84930823d7ea9eb0f8530",
+      "title": "DigiMarket Details - Light Mode",
+      "width": 2560,
+      "height": 4448,
+      "deviceType": "DESKTOP"
+    },
+    {
+      "id": "82215aac095d400f813af32b6f871820",
+      "title": "Mobile Home Light Mode V2",
+      "width": 2560,
+      "height": 3436,
+      "deviceType": "DESKTOP"
+    },
+    {
+      "id": "840d0522dd6b4721877b2daaf33f296e",
+      "title": "Mobile Home Light Mode V3",
+      "width": 2560,
+      "height": 3758,
+      "deviceType": "DESKTOP"
+    },
+    {
+      "id": "99222a4543324872aa501015b071f0c0",
+      "title": "Category & Filter View (Light)",
+      "width": 2560,
+      "height": 3182,
+      "deviceType": "DESKTOP"
+    },
+    {
+      "id": "d065264289f541a9aea2fdfe06b4bad7",
+      "title": "DigiMarket Category - Light Mode",
+      "width": 2560,
+      "height": 3146,
+      "deviceType": "DESKTOP"
+    },
+    {
+      "id": "d1cc66467ea248b2ad14f18abeeedf64",
+      "title": "Product Detail Page (Light)",
+      "width": 2560,
+      "height": 5472,
+      "deviceType": "DESKTOP"
+    },
+    {
+      "id": "e9be8606c69b4f23b5e38f76c51bb531",
+      "title": "Mobile Home Light Mode V1",
+      "width": 2560,
+      "height": 6406,
+      "deviceType": "DESKTOP"
+    },
+    {
+      "id": "ee49eb3cac0a461d8387e40c41418b27",
+      "title": "Digital Marketplace Homepage 2",
+      "width": 2560,
+      "height": 4514,
+      "deviceType": "DESKTOP"
+    },
+    {
+      "id": "7958dea83a0e4a09b2decb1cd4984c70",
+      "title": "DigiMarket Mobile Details - Light",
+      "width": 2560,
+      "height": 3290,
+      "deviceType": "DESKTOP"
+    }
+  ]
+}
