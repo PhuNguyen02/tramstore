@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AppBar,
   Toolbar,
@@ -11,48 +11,71 @@ import {
   Badge,
   Box,
   Container,
-  Menu,
-  MenuItem,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
   Divider,
   alpha,
   Tooltip,
+  Stack,
 } from "@mui/material";
 import {
   Search as SearchIcon,
   ShoppingCartOutlined as CartIcon,
   PersonOutline as UserIcon,
   Menu as MenuIcon,
-  FavoriteBorder as HeartIcon,
-  StorefrontOutlined as StoreIcon,
-  HelpOutline as HelpIcon,
   NotificationsOutlined as NotifyIcon,
+  Close as CloseIcon,
+  StorefrontOutlined as StoreIcon,
+  AutoAwesomeOutlined as AIIcon,
+  SportsEsportsOutlined as GameIcon,
+  RouteOutlined as RouteIcon,
+  LocalActivityOutlined as DealIcon,
+  HelpOutline as HelpIcon,
+  Translate as LangIcon,
 } from "@mui/icons-material";
-import { styled } from "@mui/material/styles";
+import { styled, keyframes } from "@mui/material/styles";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-const NavAppBar = styled(AppBar)(({ theme }) => ({
-  backgroundColor: alpha(theme.palette.background.paper, 0.95),
+/* ══════════════════════════════════════════════════════
+   ⭐ ANIMATIONS & KEYFRAMES
+   ══════════════════════════════════════════════════════ */
+const shimmer = keyframes`
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+`;
+
+/* ══════════════════════════════════════════════════════
+   🏙️ STYLED COMPONENTS
+   ══════════════════════════════════════════════════════ */
+const StyledAppBar = styled(AppBar, {
+  shouldForwardProp: (prop) => prop !== "scrolled",
+})<{ scrolled?: boolean }>(({ theme, scrolled }) => ({
+  backgroundColor: scrolled ? "rgba(255, 255, 255, 0.95)" : "#fff",
   backdropFilter: "blur(20px)",
-  borderBottom: `1px solid ${theme.palette.divider}`,
+  borderBottom: "1px solid rgba(0, 0, 0, 0.05)",
   color: theme.palette.text.primary,
+  transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+  boxShadow: scrolled ? "0 10px 30px rgba(0,0,0,0.04)" : "none",
 }));
 
-const Search = styled("div")(({ theme }) => ({
+const SearchWrapper = styled("div")(({ theme }) => ({
   position: "relative",
-  borderRadius: "16px",
-  backgroundColor: "#f1f5f9", // Slate 100
+  borderRadius: "14px",
+  backgroundColor: "#f1f5f9",
   transition: "all 0.3s ease",
-  "&:hover": {
-    backgroundColor: "#e2e8f0", // Slate 200
-  },
-  marginLeft: 0,
-  width: "100%",
-  flexGrow: 1,
-  maxWidth: "500px",
-  height: "46px",
   display: "flex",
   alignItems: "center",
+  width: "100%",
+  maxWidth: "460px",
   border: "1px solid transparent",
+  height: "44px",
+  "&:hover": {
+    backgroundColor: "#e2e8f0",
+  },
   "&:focus-within": {
     backgroundColor: "#fff",
     borderColor: theme.palette.primary.main,
@@ -60,244 +83,251 @@ const Search = styled("div")(({ theme }) => ({
   },
 }));
 
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
+const InputField = styled(InputBase)(({ theme }) => ({
   width: "100%",
   "& .MuiInputBase-input": {
     padding: theme.spacing(1, 2, 1, 5),
     fontSize: "0.875rem",
-    fontWeight: 600,
+    fontWeight: 500,
     width: "100%",
   },
 }));
 
-const Navbar = () => {
-  const [mobileMenuAnchor, setMobileMenuAnchor] = useState<null | HTMLElement>(
-    null,
-  );
+const StationLink = styled(Link, {
+  shouldForwardProp: (prop) => prop !== "active",
+})<{ active?: boolean }>(({ theme, active }) => ({
+  textDecoration: "none",
+  color: active ? theme.palette.primary.main : "#475569",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  gap: "4px",
+  padding: "8px 24px",
+  position: "relative",
+  transition: "all 0.3s ease",
+  "&:hover": {
+    color: theme.palette.primary.main,
+    "& .link-icon": { transform: "translateY(-2px)" },
+    "& .active-indicator": { width: "24px", opacity: 1 },
+  },
+}));
 
-  const navLinks = [
-    { name: "Sản phẩm", href: "/products" },
-    { name: "Dịch vụ Game", href: "/gaming" },
-    { name: "Ứng dụng AI", href: "/ai-tools" },
-    { name: "Khuyến mãi", href: "/deals" },
+const NavButton = styled(IconButton)(({ theme }) => ({
+  backgroundColor: "#f1f5f9",
+  color: "#1e293b",
+  borderRadius: "12px",
+  padding: "10px",
+  transition: "all 0.3s ease",
+  "&:hover": {
+    backgroundColor: alpha(theme.palette.primary.main, 0.1),
+    color: theme.palette.primary.main,
+    transform: "translateY(-2px)",
+  },
+}));
+
+/* ══════════════════════════════════════════════════════
+   🏗️ NAVBAR COMPONENT
+   ══════════════════════════════════════════════════════ */
+const Navbar = () => {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const stations = [
+    { name: "Sản phẩm", href: "/products", icon: <StoreIcon /> },
+    { name: "Lộ trình", href: "#flash-sale", icon: <RouteIcon /> },
+    { name: "Dịch vụ Game", href: "/gaming", icon: <GameIcon /> },
+    { name: "Ứng dụng AI", href: "/ai-tools", icon: <AIIcon /> },
+    { name: "Khuyến mãi", href: "/deals", icon: <DealIcon /> },
   ];
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      {/* Top Banner Information */}
-      <Box
-        sx={{
-          bgcolor: "primary.main",
-          color: "primary.contrastText",
-          py: 0.8,
-          textAlign: "center",
-        }}
-      >
-        <Typography
-          variant="caption"
-          sx={{ fontWeight: 800, letterSpacing: 1 }}
-        >
-          🎁 NHẬN NGAY VOUCHER 20K KHI ĐĂNG KÝ THÀNH VIÊN MỚI
-        </Typography>
-      </Box>
-
-      <NavAppBar position="sticky" elevation={0}>
+    <>
+      <StyledAppBar position="sticky" elevation={0} scrolled={scrolled}>
         <Container maxWidth="xl">
-          <Toolbar sx={{ py: 1, gap: { xs: 1, md: 4 } }}>
-            {/* Logo */}
-            <Link
-              href="/"
-              style={{
-                textDecoration: "none",
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-              }}
-            >
-              <Box
-                sx={{
-                  width: 42,
-                  height: 42,
-                  bgcolor: "primary.main",
-                  borderRadius: "12px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <StoreIcon sx={{ color: "#fff", fontSize: 26 }} />
+          {/* LEVEL 1: BRANDING, SEARCH, ACTIONS */}
+          <Toolbar disableGutters sx={{ height: { xs: 70, md: 84 }, gap: { xs: 2, lg: 4 } }}>
+            {/* LOGO AREA */}
+            <Link href="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: 14 }}>
+              <Box sx={{ 
+                width: 44, height: 44, 
+                bgcolor: "primary.main", 
+                borderRadius: "14px", 
+                display: "flex", 
+                alignItems: "center", 
+                justifyContent: "center",
+                boxShadow: "0 8px 20px rgba(58, 183, 174, 0.25)",
+                color: "#fff"
+              }}>
+                <StoreIcon sx={{ fontSize: 26 }} />
               </Box>
               <Box sx={{ display: { xs: "none", sm: "block" } }}>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: 900,
-                    lineHeight: 1,
-                    color: "primary.main",
-                    letterSpacing: -1,
-                  }}
-                >
-                  TRAM<span style={{ color: "#0f172a" }}>STORE</span>
+                <Typography variant="h6" sx={{ fontWeight: 900, fontSize: "1.4rem", color: "#0f172a", letterSpacing: -1, lineHeight: 1 }}>
+                  TRAM<span style={{ color: "#3AB7AE" }}>STORE</span>
                 </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    fontWeight: 800,
-                    color: "text.disabled",
-                    letterSpacing: 2,
-                    fontSize: 8,
-                  }}
-                >
+                <Typography variant="caption" sx={{ fontWeight: 800, color: "text.disabled", letterSpacing: 2, fontSize: 8 }}>
                   PREMIUM DIGITAL SERVICES
                 </Typography>
               </Box>
             </Link>
 
-            {/* Main Nav Links (Desktop) */}
-            <Box sx={{ display: { xs: "none", lg: "flex" }, gap: 3 }}>
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  style={{ textDecoration: "none" }}
-                >
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontWeight: 700,
-                      color: "text.secondary",
-                      transition: "color 0.2s",
-                      "&:hover": { color: "primary.main" },
-                    }}
-                  >
-                    {link.name}
-                  </Typography>
-                </Link>
-              ))}
-            </Box>
-
-            {/* Search Bar */}
-            <Box
-              sx={{
-                flexGrow: 1,
-                display: { xs: "none", md: "flex" },
-                justifyContent: "center",
-              }}
-            >
-              <Search>
-                <Box
-                  sx={{
-                    position: "absolute",
-                    left: 16,
-                    color: "text.disabled",
-                    display: "flex",
+            {/* SEARCH AREA (HIDDEN ON MOBILE, CENTRAL ON DESKTOP) */}
+            <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent: "center" }}>
+              <SearchWrapper>
+                <SearchIcon sx={{ position: "absolute", left: 14, color: "text.disabled", fontSize: 20 }} />
+                <InputField placeholder="Tìm kiếm ứng dụng, dịch vụ premium..." />
+                <Box 
+                  sx={{ 
+                    position: "absolute", right: 6, 
+                    px: 1, py: 0.5, bgcolor: "#fff", 
+                    borderRadius: "8px", border: "1px solid #e2e8f0",
+                    display: { xs: "none", lg: "flex" }, alignItems: "center", gap: 0.5
                   }}
                 >
-                  <SearchIcon fontSize="small" />
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: "text.disabled", fontSize: 10 }}>⌘K</Typography>
                 </Box>
-                <StyledInputBase placeholder="Bạn đang tìm kiếm ứng dụng gì?" />
-                <Button
-                  variant="contained"
-                  size="small"
-                  sx={{
-                    mr: 0.5,
-                    borderRadius: "12px",
-                    px: 3,
-                    boxShadow: "none",
-                    height: "36px",
-                  }}
-                >
-                  Tìm
-                </Button>
-              </Search>
+              </SearchWrapper>
             </Box>
 
-            {/* Right Actions */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: { xs: 0.5, md: 1.5 },
-              }}
-            >
-              <Tooltip title="Câu hỏi thường gặp">
-                <IconButton
-                  color="inherit"
-                  size="small"
-                  sx={{ display: { xs: "none", sm: "flex" } }}
-                >
-                  <HelpIcon />
-                </IconButton>
-              </Tooltip>
-              <IconButton color="inherit" size="small">
-                <Badge badgeContent={0} color="secondary">
-                  <NotifyIcon />
+            {/* ACTION GROUP */}
+            <Stack direction="row" spacing={1.5} alignItems="center">
+              <NavButton sx={{ display: { xs: "none", xl: "inline-flex" } }}>
+                <HelpIcon fontSize="small" />
+              </NavButton>
+
+              <NavButton>
+                <Badge badgeContent={3} color="primary" sx={{ "& .MuiBadge-badge": { fontWeight: 900 } }}>
+                  <NotifyIcon fontSize="small" />
                 </Badge>
-              </IconButton>
-              <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
-              <Tooltip title="Giỏ hàng">
-                <IconButton color="inherit">
-                  <Badge badgeContent={2} color="secondary" overlap="circular">
-                    <CartIcon />
-                  </Badge>
-                </IconButton>
+              </NavButton>
+
+              <Divider orientation="vertical" flexItem sx={{ mx: 0.5, height: 28, alignSelf: "center", display: { xs: "none", md: "block" } }} />
+
+              <Tooltip title="Giỏ vé của bạn">
+                <Button
+                  sx={{
+                    px: { xs: 1.5, md: 2.5 }, py: 1.2,
+                    borderRadius: "14px",
+                    bgcolor: alpha("#3AB7AE", 0.08),
+                    color: "primary.main",
+                    "&:hover": { bgcolor: alpha("#3AB7AE", 0.15) },
+                    display: "flex", alignItems: "center", gap: 1.5
+                  }}
+                >
+                  <CartIcon />
+                  <Box sx={{ textAlign: "left", display: { xs: "none", xl: "block" } }}>
+                    <Typography variant="caption" sx={{ display: "block", color: "inherit", fontWeight: 800, lineHeight: 1 }}>Checkout</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 900, color: "#0f172a", lineHeight: 1, mt: 0.3 }}>250.000đ</Typography>
+                  </Box>
+                </Button>
               </Tooltip>
+
               <Button
                 variant="contained"
+                disableElevation
                 startIcon={<UserIcon />}
                 sx={{
                   display: { xs: "none", md: "flex" },
-                  fontWeight: 900,
-                  px: 3,
-                  py: 1.2,
+                  bgcolor: "#0f172a",
+                  fontWeight: 800,
+                  px: 3, height: 44, borderRadius: "14px",
+                  textTransform: "none", fontSize: "0.85rem",
+                  "&:hover": { bgcolor: "#1e293b" }
                 }}
               >
-                Tài khoản
+                Đăng nhập
               </Button>
-              <IconButton
-                sx={{ display: { lg: "none" } }}
-                onClick={(e) => setMobileMenuAnchor(e.currentTarget)}
-              >
+
+              <IconButton sx={{ display: { md: "none" }, bgcolor: "#f1f5f9", borderRadius: "12px" }} onClick={() => setMobileOpen(true)}>
                 <MenuIcon />
               </IconButton>
-            </Box>
+            </Stack>
           </Toolbar>
         </Container>
-      </NavAppBar>
 
-      {/* Mobile Menu */}
-      <Menu
-        anchorEl={mobileMenuAnchor}
-        open={Boolean(mobileMenuAnchor)}
-        onClose={() => setMobileMenuAnchor(null)}
-        PaperProps={{
-          sx: {
-            width: "100%",
-            maxWidth: "100%",
-            borderRadius: 0,
-            mt: 1.5,
-            p: 2,
-          },
-        }}
+        {/* LEVEL 2: NAVIGATION RIBBON (DESKTOP ONLY) */}
+        <Box sx={{ display: { xs: "none", md: "block" }, borderTop: "1px solid rgba(0,0,0,0.03)", bgcolor: alpha("#f8fafc", 0.5) }}>
+          <Container maxWidth="xl">
+            <Stack direction="row" justifyContent="center" alignItems="center" spacing={1} sx={{ py: 1 }}>
+              {stations.map((item) => (
+                <StationLink key={item.name} href={item.href} active={pathname === item.href}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
+                    <Box className="link-icon" sx={{ transition: "all 0.3s ease", display: "flex", color: pathname === item.href ? "primary.main" : "inherit" }}>
+                      {React.cloneElement(item.icon as React.ReactElement<any>, { sx: { fontSize: 18 } })}
+                    </Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, letterSpacing: -0.2 }}>{item.name}</Typography>
+                  </Box>
+                  <Box
+                    className="active-indicator"
+                    sx={{
+                      width: pathname === item.href ? "24px" : "0",
+                      height: "3px",
+                      bgcolor: "primary.main",
+                      borderRadius: "2px",
+                      transition: "all 0.3s ease",
+                      opacity: pathname === item.href ? 1 : 0,
+                      mt: 0.5
+                    }}
+                  />
+                </StationLink>
+              ))}
+            </Stack>
+          </Container>
+        </Box>
+      </StyledAppBar>
+
+      {/* MOBILE DRAWER */}
+      <Drawer
+        anchor="right"
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        PaperProps={{ sx: { width: "100%", maxWidth: 320, p: 0 } }}
       >
-        {navLinks.map((link) => (
-          <MenuItem
-            key={link.name}
-            onClick={() => setMobileMenuAnchor(null)}
-            sx={{ borderRadius: "12px", mb: 1 }}
-          >
-            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-              {link.name}
-            </Typography>
-          </MenuItem>
-        ))}
-        <Divider sx={{ my: 2 }} />
-        <Button fullWidth variant="contained" sx={{ py: 1.5 }}>
-          Đăng nhập / Đăng ký
-        </Button>
-      </Menu>
-    </Box>
+        <Box sx={{ p: 4, display: "flex", flexDirection: "column", height: "100%" }}>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 5 }}>
+            <Typography variant="h6" sx={{ fontWeight: 900 }}>MENU</Typography>
+            <IconButton onClick={() => setMobileOpen(false)} sx={{ bgcolor: "#f1f5f9" }}>
+              <CloseIcon />
+            </IconButton>
+          </Box>
+
+          <List sx={{ mb: 4 }}>
+            {stations.map((item) => (
+              <ListItem 
+                key={item.name} 
+                component={Link} 
+                href={item.href}
+                onClick={() => setMobileOpen(false)}
+                sx={{ borderRadius: "12px", mb: 1.5, p: 2, bgcolor: pathname === item.href ? alpha("#3AB7AE", 0.08) : "transparent" }}
+              >
+                <ListItemIcon sx={{ minWidth: 44, color: pathname === item.href ? "primary.main" : "text.secondary" }}>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText primary={item.name} primaryTypographyProps={{ sx: { fontWeight: 800, color: pathname === item.href ? "primary.main" : "#0f172a" } }} />
+              </ListItem>
+            ))}
+          </List>
+
+          <Divider sx={{ mb: 4 }} />
+
+          <Box sx={{ mt: "auto" }}>
+            <Button fullWidth variant="contained" size="large" sx={{ py: 2, borderRadius: "16px", fontWeight: 800, mb: 2 }}>
+              Đăng nhập ngay
+            </Button>
+            <Stack direction="row" spacing={2} justifyContent="center" sx={{ opacity: 0.6 }}>
+              <LangIcon fontSize="small" />
+              <Typography variant="caption" sx={{ fontWeight: 700 }}>Tiếng Việt / English</Typography>
+            </Stack>
+          </Box>
+        </Box>
+      </Drawer>
+    </>
   );
 };
 

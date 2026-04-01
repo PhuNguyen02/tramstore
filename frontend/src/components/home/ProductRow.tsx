@@ -20,6 +20,7 @@ import {
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { formatCurrency } from "@/lib/utils";
+import Link from "next/link";
 
 interface Product {
   id: string;
@@ -111,7 +112,8 @@ const ProductRow = ({ title, products }: ProductRowProps) => {
 
       <ScrollContainer ref={scrollRef} sx={{ px: 4 }}>
         {products.map((product) => (
-          <ProductCard key={product.id} elevation={0}>
+          <Link href={`/product/${product.id}`} key={product.id} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+          <ProductCard elevation={0}>
             <Box sx={{ position: "relative" }}>
               <CardMedia
                 component="img"
@@ -215,6 +217,7 @@ const ProductRow = ({ title, products }: ProductRowProps) => {
               </Box>
             </CardContent>
           </ProductCard>
+          </Link>
         ))}
       </ScrollContainer>
     </Box>

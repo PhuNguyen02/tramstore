@@ -24,10 +24,14 @@ import Navbar from "@/components/layout/Navbar";
 import Hero from "@/components/home/Hero";
 import BrandStrip from "@/components/home/BrandStrip";
 import ProductGrid from "@/components/home/ProductGrid";
-import Link from "next/link";
+import FlashSaleStation from "@/components/home/FlashSaleStation";
+import {
+  TrainTrack,
+  RunningTrain,
+  StationBanner,
+} from "@/components/home/TrainJourney";
+import StationNav from "@/components/home/StationNav";
 import productsData from "@/data/products.json";
-
-const CATEGORIES = ["AI", "Làm việc - lưu trữ", "Giải trí", "Học tập", "VPN"];
 
 export default function Home() {
   const flashSaleProducts = [...productsData]
@@ -55,20 +59,67 @@ export default function Home() {
   return (
     <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
       <Navbar />
+      <StationNav />
 
-      <Hero />
+      <Box id="hero">
+        <Hero />
+      </Box>
 
-      <BrandStrip />
+      {/* Running train transition */}
+      <RunningTrain />
 
-      {/* Flash Sale Section */}
-      <ProductGrid
-        title="Ưu đãi giới hạn"
-        subtitle="Flash Sale - Cơ hội sở hữu tài khoản Premium với giá cực rẻ"
-        products={flashSaleProducts}
-        showFlashSale={true}
-      />
+      {/* Flash Sale as Departure Board */}
+      <Box id="flash-sale">
+        <FlashSaleStation products={flashSaleProducts} />
+      </Box>
 
-      {/* Promotion Hero Banner */}
+      <Container maxWidth="xl" id="station-1">
+        <TrainTrack
+          stationName="AI & Công nghệ"
+          stationNumber={1}
+          gif="/charging-station.gif"
+          accentColor="#3AB7AE"
+        />
+      </Container>
+
+      <Box sx={{ py: 4 }}>
+        <Container maxWidth="xl">
+          <StationBanner
+            title="Trạm AI & Công nghệ"
+            subtitle="ChatGPT Plus, Claude Pro, Midjourney và các công cụ AI hàng đầu — Nạp năng lượng trí tuệ nhân tạo"
+            gif="/charging-station.gif"
+          />
+        </Container>
+        <ProductGrid title="" products={aiProducts} accentColor="primary" />
+      </Box>
+
+      <Container maxWidth="xl" id="station-2">
+        <TrainTrack
+          stationName="Giải trí đỉnh cao"
+          stationNumber={2}
+          gif="/train-station-gif.gif"
+          accentColor="#ef4444"
+        />
+      </Container>
+
+      <Box sx={{ py: 4 }}>
+        <Container maxWidth="xl">
+          <StationBanner
+            title="Trạm Giải trí"
+            subtitle="Netflix, Spotify, YouTube Premium — Chuyến tàu giải trí không giới hạn"
+            gif="/train-station-gif.gif"
+            accentColor="#ef4444"
+          />
+        </Container>
+        <ProductGrid
+          title=""
+          products={entertainmentProducts}
+          accentColor="secondary"
+        />
+      </Box>
+
+      <RunningTrain />
+
       <Container maxWidth="xl" sx={{ py: 6 }}>
         <Paper
           elevation={0}
@@ -80,11 +131,9 @@ export default function Home() {
             color: "#fff",
             position: "relative",
             overflow: "hidden",
-            display: "flex",
-            alignItems: "center",
           }}
         >
-          {/* Decorative elements */}
+          {/* Decorative blurs */}
           <Box
             sx={{
               position: "absolute",
@@ -108,9 +157,45 @@ export default function Home() {
               bgcolor: "secondary.main",
               borderRadius: "50%",
               filter: "blur(80px)",
-              opacity: 0.2,
+              opacity: 0.15,
             }}
           />
+
+          {/* Decorative GIFs */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: 24,
+              right: 24,
+              width: 56,
+              height: 56,
+              opacity: 0.2,
+              display: { xs: "none", md: "block" },
+            }}
+          >
+            <img
+              src="/fire-station.gif"
+              alt=""
+              style={{ width: "100%", height: "100%", objectFit: "contain" }}
+            />
+          </Box>
+          <Box
+            sx={{
+              position: "absolute",
+              bottom: 24,
+              left: 24,
+              width: 56,
+              height: 56,
+              opacity: 0.2,
+              display: { xs: "none", md: "block" },
+            }}
+          >
+            <img
+              src="/clock.gif"
+              alt=""
+              style={{ width: "100%", height: "100%", objectFit: "contain" }}
+            />
+          </Box>
 
           <Grid
             container
@@ -119,17 +204,46 @@ export default function Home() {
             sx={{ position: "relative", zIndex: 1 }}
           >
             <Grid size={{ xs: 12, md: 7 }}>
-              <Typography
-                variant="overline"
-                sx={{
-                  color: "primary.main",
-                  fontWeight: 900,
-                  letterSpacing: 2,
-                }}
+              <Box
+                sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}
               >
-                TÀI KHOẢN HÀN LÂM & CÔNG CỤ AI
-              </Typography>
-              <Typography variant="h2" sx={{ fontWeight: 900, mt: 2, mb: 3 }}>
+                <Box
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: "10px",
+                    bgcolor: "rgba(58, 183, 174, 0.15)",
+                    p: 0.4,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <img
+                    src="/train-gif.gif"
+                    alt=""
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain",
+                    }}
+                  />
+                </Box>
+                <Typography
+                  variant="overline"
+                  sx={{
+                    color: "primary.main",
+                    fontWeight: 900,
+                    letterSpacing: 2,
+                  }}
+                >
+                  CHUYẾN TÀU NHANH — ACADEMIC EXPRESS
+                </Typography>
+              </Box>
+              <Typography
+                variant="h2"
+                sx={{ fontWeight: 900, mt: 2, mb: 3, lineHeight: 1.15 }}
+              >
                 Nâng tầm kiến thức <br />
                 với ChatGPT Plus & Coursera
               </Typography>
@@ -143,7 +257,7 @@ export default function Home() {
                 }}
               >
                 Sở hữu ngay các công cụ hỗ trợ học tập và làm việc mạnh mẽ nhất
-                hiện nay. Cam kết giá rẻ nhất thị trường và bảo hành toàn diện.
+                hiện nay. Lên tàu tốc hành để đến trạm tri thức.
               </Typography>
               <Button
                 variant="contained"
@@ -151,7 +265,7 @@ export default function Home() {
                 endIcon={<ArrowIcon />}
                 sx={{ px: 6, py: 2, borderRadius: "18px" }}
               >
-                XEM NGAY DANH MỤC
+                LÊN TÀU NGAY
               </Button>
             </Grid>
             <Grid
@@ -171,15 +285,26 @@ export default function Home() {
                   {aiProducts.slice(0, 3).map((product) => (
                     <Box
                       key={product.id}
-                      sx={{ display: "flex", alignItems: "center", gap: 3 }}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 3,
+                        p: 1.5,
+                        borderRadius: "16px",
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          bgcolor: "rgba(255,255,255,0.05)",
+                          transform: "translateX(4px)",
+                        },
+                      }}
                     >
                       <Box
                         sx={{
-                          width: 64,
-                          height: 64,
-                          borderRadius: "20px",
+                          width: 56,
+                          height: 56,
+                          borderRadius: "16px",
                           bgcolor: "rgba(255,255,255,0.1)",
-                          p: 1.5,
+                          p: 1.2,
                         }}
                       >
                         <img
@@ -194,20 +319,28 @@ export default function Home() {
                       </Box>
                       <Box sx={{ flexGrow: 1 }}>
                         <Typography
-                          variant="subtitle1"
-                          sx={{ fontWeight: 800 }}
+                          variant="subtitle2"
+                          sx={{ fontWeight: 800, color: "#fff" }}
                         >
                           {product.title}
                         </Typography>
                         <Typography
                           variant="caption"
-                          sx={{ color: "rgba(255,255,255,0.5)" }}
+                          sx={{ color: "rgba(255,255,255,0.4)" }}
                         >
                           Chỉ từ {product.price.toLocaleString("vi-VN")}đ
                         </Typography>
                       </Box>
-                      <Button variant="text" sx={{ color: "primary.main" }}>
-                        MUA
+                      <Button
+                        variant="text"
+                        size="small"
+                        sx={{
+                          color: "primary.main",
+                          fontWeight: 800,
+                          minWidth: "auto",
+                        }}
+                      >
+                        ĐẶT VÉ
                       </Button>
                     </Box>
                   ))}
@@ -218,50 +351,203 @@ export default function Home() {
         </Paper>
       </Container>
 
-      {/* Category Sections */}
-      <ProductGrid
-        title="AI & Công nghệ"
-        subtitle="ChatGPT Plus, Claude Pro, Midjourney và các công cụ AI hàng đầu"
-        products={aiProducts}
-        accentColor="primary"
-      />
+      {/* ═══════════════════════════════════════════════
+          🚉 TRẠM 3 — LÀM VIỆC
+          ═══════════════════════════════════════════════ */}
+      <Container maxWidth="xl" id="station-3">
+        <TrainTrack
+          stationName="Làm việc chuyên nghiệp"
+          stationNumber={3}
+          gif="/fire-station.gif"
+          accentColor="#f59e0b"
+        />
+      </Container>
 
-      <ProductGrid
-        title="Giải trí đỉnh cao"
-        subtitle="Netflix, Spotify, YouTube Premium cùng nhiều dịch vụ hot khác"
-        products={entertainmentProducts}
-        accentColor="secondary"
-      />
+      <Box sx={{ py: 4 }}>
+        <Container maxWidth="xl">
+          <StationBanner
+            title="Trạm Làm việc"
+            subtitle="Bộ công cụ thiết kế, văn phòng và lưu trữ đám mây — Trạm tiếp nhiên liệu cho dân công sở"
+            gif="/fire-station.gif"
+            accentColor="#f59e0b"
+          />
+        </Container>
+        <ProductGrid title="" products={workProducts} accentColor="primary" />
+      </Box>
 
-      <ProductGrid
-        title="Làm việc chuyên nghiệp"
-        subtitle="Bộ công cụ thiết kế, văn phòng và lưu trữ đám mây"
-        products={workProducts}
-        accentColor="primary"
-      />
+      {/* ═══════════════════════════════════════════════
+          🚉 TRẠM 4 — HỌC TẬP
+          ═══════════════════════════════════════════════ */}
+      <Container maxWidth="xl" id="station-4">
+        <TrainTrack
+          stationName="Học tập & Kỹ năng"
+          stationNumber={4}
+          gif="/clock.gif"
+          accentColor="#8b5cf6"
+        />
+      </Container>
 
-      <ProductGrid
-        title="Học tập & Kỹ năng"
-        subtitle="Nâng cao kiến thức với các ứng dụng học ngoại ngữ và kỹ năng"
-        products={educationProducts}
-        accentColor="primary"
-      />
+      <Box sx={{ py: 4 }}>
+        <Container maxWidth="xl">
+          <StationBanner
+            title="Trạm Học tập"
+            subtitle="Nâng cao kiến thức với các ứng dụng học ngoại ngữ và kỹ năng — Đúng giờ, đúng lộ trình"
+            gif="/clock.gif"
+            accentColor="#8b5cf6"
+          />
+        </Container>
+        <ProductGrid
+          title=""
+          products={educationProducts}
+          accentColor="primary"
+        />
+      </Box>
 
-      <ProductGrid
-        title="Bảo mật & VPN"
-        subtitle="Duyệt web an toàn và không giới hạn với dịch vụ VPN hàng đầu"
-        products={vpnProducts}
-        accentColor="secondary"
-      />
+      {/* ═══════════════════════════════════════════════
+          🚉 TRẠM 5 — BẢO MẬT & VPN
+          ═══════════════════════════════════════════════ */}
+      <Container maxWidth="xl" id="station-5">
+        <TrainTrack
+          stationName="Bảo mật & VPN"
+          stationNumber={5}
+          gif="/bus-stop.gif"
+          accentColor="#06b6d4"
+        />
+      </Container>
 
-      <ProductGrid
-        title="Phần mềm & Tiện ích"
-        subtitle="Các công cụ hỗ trợ công việc và tiện ích máy tính"
-        products={softwareProducts}
-        accentColor="primary"
-      />
+      <Box sx={{ py: 4 }}>
+        <Container maxWidth="xl">
+          <StationBanner
+            title="Trạm Bảo mật"
+            subtitle="Duyệt web an toàn và không giới hạn — Trạm bảo vệ an ninh số"
+            gif="/bus-stop.gif"
+            accentColor="#06b6d4"
+          />
+        </Container>
+        <ProductGrid title="" products={vpnProducts} accentColor="secondary" />
+      </Box>
 
-      {/* Footer Section */}
+      {/* ═══════════════════════════════════════════════
+          🚉 TRẠM 6 — PHẦN MỀM (GA CUỐI)
+          ═══════════════════════════════════════════════ */}
+      <Container maxWidth="xl" id="station-6">
+        <TrainTrack
+          stationName="Phần mềm & Tiện ích"
+          stationNumber={6}
+          gif="/train-station.gif"
+          accentColor="#ec4899"
+          isLast
+        />
+      </Container>
+
+      <Box sx={{ py: 4 }}>
+        <Container maxWidth="xl">
+          <StationBanner
+            title="Ga cuối — Phần mềm"
+            subtitle="Các công cụ hỗ trợ công việc và tiện ích máy tính — Ga cuối, xuống tàu và sắm ngay"
+            gif="/train-station.gif"
+            accentColor="#ec4899"
+          />
+        </Container>
+        <ProductGrid
+          title=""
+          products={softwareProducts}
+          accentColor="primary"
+        />
+      </Box>
+
+      {/* ═══════════════════════════════════════════════
+          ĐẾN TRẠM — FINAL DESTINATION CTA
+          ═══════════════════════════════════════════════ */}
+      <RunningTrain />
+
+      <Box
+        sx={{
+          background: "linear-gradient(180deg, #f0faf9 0%, #fff 100%)",
+          py: 10,
+          textAlign: "center",
+        }}
+      >
+        <Container maxWidth="md">
+          <Box
+            sx={{
+              width: 80,
+              height: 80,
+              borderRadius: "24px",
+              bgcolor: alpha("#3AB7AE", 0.1),
+              border: "3px solid rgba(58, 183, 174, 0.2)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              mx: "auto",
+              mb: 3,
+              p: 1,
+            }}
+          >
+            <img
+              src="/train-station-gif.gif"
+              alt="Trạm Byte"
+              style={{ width: "100%", height: "100%", objectFit: "contain" }}
+            />
+          </Box>
+          <Typography
+            variant="h3"
+            sx={{ fontWeight: 900, color: "#0f172a", mb: 2 }}
+          >
+            Bạn đã đến <span style={{ color: "#3AB7AE" }}>Trạm Byte</span> 🎉
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              color: "text.secondary",
+              mb: 5,
+              maxWidth: 500,
+              mx: "auto",
+              fontWeight: 500,
+              lineHeight: 1.7,
+            }}
+          >
+            Cảm ơn bạn đã lên tàu cùng chúng tôi! Khám phá thêm hàng trăm tài
+            khoản số Premium với giá cực hời. Mỗi chuyến tàu đều mang đến ưu đãi
+            mới.
+          </Typography>
+          <Stack
+            direction="row"
+            spacing={2}
+            justifyContent="center"
+            flexWrap="wrap"
+          >
+            <Button
+              variant="contained"
+              size="large"
+              endIcon={<ArrowIcon />}
+              sx={{ px: 5, py: 2, borderRadius: "16px", fontWeight: 800 }}
+            >
+              KHÁM PHÁ TOÀN BỘ
+            </Button>
+            <Button
+              variant="outlined"
+              size="large"
+              sx={{
+                px: 5,
+                py: 2,
+                borderRadius: "16px",
+                fontWeight: 800,
+                borderWidth: 2,
+                borderColor: "#e2e8f0",
+                color: "#475569",
+                "&:hover": { borderWidth: 2, borderColor: "primary.main" },
+              }}
+            >
+              LIÊN HỆ HỖ TRỢ
+            </Button>
+          </Stack>
+        </Container>
+      </Box>
+
+      {/* ═══════════════════════════════════════════════
+          FOOTER
+          ═══════════════════════════════════════════════ */}
       <Box
         sx={{ bgcolor: "#fff", pt: 12, pb: 6, borderTop: "1px solid #f1f5f9" }}
       >
