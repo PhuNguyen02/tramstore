@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Star,
@@ -13,481 +14,374 @@ import {
   Minus,
   Plus,
   Sparkles,
-  Train,
   MapPin,
-  Ticket
+  Ticket,
+  AlertTriangle,
+  Package,
+  Info,
+  ChevronRight,
+  Truck,
+  BadgeCheck,
 } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
-import Button from "@/components/ui/Button";
 import { formatCurrency, cn } from "@/lib/utils";
-import { Box, Typography, alpha } from "@mui/material";
-import { keyframes } from "@mui/material/styles";
+import productsData from "@/data/products.json";
 
-const dotPulse = keyframes`
-  0%, 100% { opacity: 0.3; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.2); }
-`;
+/* ─── types ─── */
+interface AccountType { label: string; value: string; price: number }
+interface Warranty { label: string; value: string; price: number; compatibleWith: string[] }
+interface Product {
+  id: string; title: string; slug: string; category: string;
+  price: number; originalPrice: number; image: string;
+  rating: number; reviews: number; discount: number;
+  tag: string; brand: string; stock?: number;
+  description?: string; features?: string[];
+  accountTypes?: AccountType[]; warranties?: Warranty[];
+}
 
-const glowRing = keyframes`
-  0% { box-shadow: 0 0 0 0px rgba(58, 183, 174, 0.4); }
-  70% { box-shadow: 0 0 0 12px rgba(58, 183, 174, 0); }
-  100% { box-shadow: 0 0 0 0px rgba(58, 183, 174, 0); }
-`;
+/* ═══════════════════════════════════════════════════════════
+   PRODUCT DETAIL — LUXURY MINIMALIST
+   Design principles:
+   • Maximum negative space
+   • Monochromatic palette: charcoal + off-white + one accent
+   • Typography-driven hierarchy
+   • Invisible borders, defined by space alone
+   • Product image = hero, everything else serves it
+   ═══════════════════════════════════════════════════════════ */
 
-const shimmer = keyframes`
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-`;
+const ProductDetailPage = () => {
+  const params = useParams();
+  const slug = params?.slug as string;
+  const product = useMemo(() => (productsData as Product[]).find((p) => p.slug === slug) || null, [slug]);
 
-const ProductDetailPage = ({ params }: { params: { slug: string } }) => {
+  const [selectedAccountType, setSelectedAccountType] = useState<string | null>(null);
+  const [selectedWarranty, setSelectedWarranty] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [quantityInput, setQuantityInput] = useState("1");
   const [activeTab, setActiveTab] = useState("description");
-  const accentColor = "#3AB7AE";
+  const [showStockWarning, setShowStockWarning] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [isWished, setIsWished] = useState(false);
 
-  // Mock product
-  const product = {
-    title: "Spotify Premium Individual - 1 Year",
-    category: "Entertainment",
-    price: 149000,
-    originalPrice: 299000,
-    rating: 4.8,
-    reviews: 124,
-    discount: 50,
-    image:
-      "https://storage.googleapis.com/pr-newsroom-wp/1/2018/11/Spotify_Logo_CMYK_Green.png",
-    description:
-      "Tận hưởng âm nhạc không giới hạn trên mọi nền tảng. Chuyến tàu âm thanh chất lượng cao 320kbps không quảng cáo. Bảo hành trọn đời vé trong 1 năm sử dụng.",
-    features: [
-      "Nghe nhạc không quảng cáo",
-      "Tải xuống và nghe ngoại tuyến",
-      "Phát nhạc theo yêu cầu",
-      "Bảo hành 1 đổi 1 suốt 1 năm",
-      "Giao vé tức thì qua Email",
-      "Sử dụng trên tài khoản chính chủ",
-    ],
+  const stock = product?.stock ?? 99;
+  const accountTypeObj = useMemo(() => product?.accountTypes?.find((a) => a.value === selectedAccountType) ?? null, [product, selectedAccountType]);
+  const warrantyObj = useMemo(() => product?.warranties?.find((w) => w.value === selectedWarranty) ?? null, [product, selectedWarranty]);
+  const availableWarranties = useMemo(() => {
+    if (!product?.warranties || !selectedAccountType) return product?.warranties ?? [];
+    return product.warranties.map((w) => ({ ...w, disabled: !w.compatibleWith.includes(selectedAccountType) }));
+  }, [product, selectedAccountType]);
+
+  useEffect(() => {
+    if (!selectedAccountType || !selectedWarranty || !product?.warranties) return;
+    const c = product.warranties.find((w) => w.value === selectedWarranty);
+    if (c && !c.compatibleWith.includes(selectedAccountType)) setSelectedWarranty(null);
+  }, [selectedAccountType, selectedWarranty, product]);
+
+  const accountPrice = accountTypeObj?.price ?? product?.price ?? 0;
+  const warrantyPrice = warrantyObj?.price ?? 0;
+  const totalPrice = (accountPrice + warrantyPrice) * quantity;
+  const hasAccountTypes = (product?.accountTypes?.length ?? 0) > 0;
+  const hasWarranties = (product?.warranties?.length ?? 0) > 0;
+  const isFormComplete = (!hasAccountTypes || selectedAccountType !== null) && (!hasWarranties || selectedWarranty !== null);
+
+  const handleQuantityChange = (val: number) => {
+    if (val < 1) val = 1;
+    if (val > stock) { val = stock; setShowStockWarning(true); setTimeout(() => setShowStockWarning(false), 3000); }
+    setQuantity(val); setQuantityInput(String(val));
+  };
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/[^0-9]/g, ""); setQuantityInput(raw);
+    if (raw !== "") { const n = parseInt(raw, 10); if (n >= 1) handleQuantityChange(n); }
+  };
+  const handleInputBlur = () => { if (!quantityInput || parseInt(quantityInput) < 1) { setQuantity(1); setQuantityInput("1"); } };
+  const handleBuyNow = () => {
+    if (!isFormComplete) {
+      const m: string[] = [];
+      if (hasAccountTypes && !selectedAccountType) m.push("Loại tài khoản");
+      if (hasWarranties && !selectedWarranty) m.push("Bảo hành");
+      setValidationError(`Vui lòng chọn ${m.join(" và ")}`);
+      setTimeout(() => setValidationError(null), 4000);
+      return;
+    }
+    alert(`Đặt hàng thành công! Mã đơn #${Date.now().toString(36).toUpperCase()}`);
   };
 
+  /* 404 */
+  if (!product) {
+    return (
+      <main className="min-h-screen bg-white"><Navbar />
+        <div className="flex flex-col items-center justify-center min-h-[70vh]">
+          <p className="text-[13px] tracking-[0.3em] text-gray-300 uppercase mb-4">404</p>
+          <h1 className="text-xl font-medium text-[#1a1a1a]">Sản phẩm không tồn tại</h1>
+        </div>
+      </main>
+    );
+  }
+
+  const features = product.features ?? ["Bảo hành đổi mới", "Kích hoạt tức thì", "Hỗ trợ 24/7"];
+  const description = product.description ?? `${product.title} — sản phẩm chất lượng cao.`;
+
   return (
-    <main className="min-h-screen bg-[#f8fafc]">
+    <main className="min-h-screen bg-white">
       <Navbar />
 
-      <div className="container-app pt-32 pb-20 max-w-[1280px]">
-        {/* Departure Board Style Wrapper */}
-        <Box
-          sx={{
-            background:
-              "linear-gradient(160deg, #f0faf9 0%, #e6f7f5 40%, #f0fdfb 100%)",
-            borderRadius: { xs: "24px", md: "40px" },
-            overflow: "hidden",
-            position: "relative",
-            boxShadow:
-              "0 24px 80px -20px rgba(58, 183, 174, 0.2), 0 8px 32px -10px rgba(0,0,0,0.05)",
-            border: "1px solid rgba(58, 183, 174, 0.2)",
-          }}
-        >
-          {/* Board Header */}
-          <Box
-            sx={{
-              background:
-                "linear-gradient(135deg, rgba(58, 183, 174, 0.12) 0%, rgba(58, 183, 174, 0.04) 100%)",
-              px: { xs: 3, md: 6 },
-              py: { xs: 2.5, md: 3 },
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              borderBottom: "1px solid rgba(58, 183, 174, 0.15)",
-              position: "relative",
-              zIndex: 5,
-            }}
+      <div className="max-w-[1320px] mx-auto px-6 lg:px-10 pt-28 pb-24">
+        {/* ── Breadcrumb ── */}
+        <nav className="flex items-center gap-2 text-[12px] tracking-wide text-[#999] mb-10 lg:mb-14">
+          <span className="hover:text-[#1a1a1a] cursor-pointer transition-colors duration-300">Trang chủ</span>
+          <ChevronRight className="w-3 h-3 text-[#ccc]" />
+          <span className="hover:text-[#1a1a1a] cursor-pointer transition-colors duration-300">{product.category}</span>
+          <ChevronRight className="w-3 h-3 text-[#ccc]" />
+          <span className="text-[#1a1a1a]">{product.title}</span>
+        </nav>
+
+        {/* ══════════ HERO SPLIT ══════════ */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+
+          {/* ── LEFT: Product Visual ── */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
+            className="lg:sticky lg:top-32"
           >
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2.5 }}>
-              <Box
-                sx={{
-                  width: { xs: 40, md: 52 },
-                  height: { xs: 40, md: 52 },
-                  borderRadius: "16px",
-                  bgcolor: "#fff",
-                  border: "2px solid rgba(58, 183, 174, 0.2)",
-                  boxShadow: "0 4px 12px rgba(58, 183, 174, 0.1)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  p: 0.8,
-                }}
+            <div className="relative aspect-square bg-[#fafafa] rounded-2xl flex items-center justify-center group overflow-hidden">
+              {/* Minimal badge */}
+              {product.discount > 0 && (
+                <span className="absolute top-6 left-6 z-10 text-[11px] tracking-[0.15em] font-medium text-[#1a1a1a] bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
+                  –{product.discount}%
+                </span>
+              )}
+
+              <button
+                onClick={() => setIsWished(!isWished)}
+                className="absolute top-6 right-6 z-10 w-10 h-10 flex items-center justify-center"
               >
-                <Train className="text-[#3AB7AE]" size={28} />
-              </Box>
-              <Box>
-                <Typography
-                  variant="overline"
-                  sx={{
-                    color: alpha(accentColor, 0.7),
-                    fontWeight: 900,
-                    letterSpacing: 2,
-                    fontSize: "0.6rem",
-                    display: "block",
-                    lineHeight: 1,
-                    mb: 0.5,
-                  }}
-                >
-                  GA TRUNG TÂM • PRODUCT TERMINAL
-                </Typography>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    color: "#0f172a",
-                    fontWeight: 900,
-                    lineHeight: 1.2,
-                    fontSize: { xs: "1.1rem", md: "1.3rem" },
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                  }}
-                >
-                  <Ticket size={20} className="text-warning" />
-                  Chi tiết hành trình
-                </Typography>
-              </Box>
-            </Box>
-            {/* Live Status */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                bgcolor: "rgba(34, 197, 94, 0.08)",
-                border: "1px solid rgba(34, 197, 94, 0.2)",
-                borderRadius: "10px",
-                px: 1.5,
-                py: 0.5,
-              }}
-            >
-              <Box
-                sx={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  bgcolor: "#22c55e",
-                  animation: `${dotPulse} 1.2s ease-in-out infinite`,
-                }}
+                <Heart className={cn("w-5 h-5 transition-all duration-300", isWished ? "fill-[#1a1a1a] text-[#1a1a1a]" : "text-[#ccc] hover:text-[#999]")} />
+              </button>
+
+              <img
+                src={product.image}
+                alt={product.title}
+                className="max-w-[60%] max-h-[60%] object-contain group-hover:scale-[1.03] transition-transform duration-700 ease-out"
               />
-              <Typography
-                variant="caption"
-                sx={{
-                  color: "#22c55e",
-                  fontWeight: 900,
-                  letterSpacing: 1.5,
-                  fontSize: "0.65rem",
-                }}
-              >
-                SẴN SÀNG KHỞI HÀNH
-              </Typography>
-            </Box>
-          </Box>
+            </div>
+          </motion.div>
 
-          <Box sx={{ p: { xs: 3, md: 5 }, position: "relative", zIndex: 2 }}>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-              {/* 📸 Image Gallery (Left, Span 5) */}
-              <motion.div
-                initial={{ opacity: 0, x: -30 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="lg:col-span-5 space-y-4"
-              >
-                <Box
-                  sx={{
-                    aspectRatio: "1",
-                    borderRadius: "32px",
-                    bgcolor: "#fff",
-                    border: "2px solid rgba(58, 183, 174, 0.15)",
-                    boxShadow: "0 20px 40px -10px rgba(58, 183, 174, 0.15)",
-                    position: "relative",
-                    overflow: "hidden",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    p: 6,
-                  }}
-                  className="group"
-                >
-                  <img
-                    src={product.image}
-                    alt={product.title}
-                    className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700"
-                  />
-                  <div className="absolute top-6 left-6 px-4 py-1.5 rounded-full bg-[#3AB7AE] text-xs font-black text-white shadow-lg tracking-widest">
-                    GIẢM {product.discount}%
-                  </div>
-                </Box>
-                {/* Thumbnails */}
-                <div className="grid grid-cols-4 gap-4">
-                  {[1, 2, 3, 4].map((i) => (
-                    <Box
-                      key={i}
-                      sx={{
-                        aspectRatio: "1",
-                        borderRadius: "16px",
-                        bgcolor: "#fff",
-                        border: i === 1 
-                          ? "2px solid #3AB7AE"
-                          : "1px solid rgba(58, 183, 174, 0.15)",
-                        opacity: i === 1 ? 1 : 0.6,
-                        cursor: "pointer",
-                        "&:hover": {
-                          opacity: 1,
-                          borderColor: "#3AB7AE",
-                        },
-                        transition: "all 0.2s ease",
-                        p: 2,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center"
-                      }}
-                    >
-                      <img
-                        src={product.image}
-                        className="w-full h-full object-contain"
-                      />
-                    </Box>
-                  ))}
-                </div>
-              </motion.div>
-
-              {/* 📝 Details Content (Right, Span 7) */}
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="lg:col-span-7 flex flex-col"
-              >
-                <div className="space-y-2 mb-6">
-                  <span className="text-xs font-black text-[#3AB7AE] uppercase tracking-[0.2em] bg-[#3AB7AE]/10 px-3 py-1 rounded-full">
-                    <MapPin className="inline-block w-3 h-3 mr-1 -mt-0.5" />
-                    {product.category}
-                  </span>
-                  <h1 className="text-3xl md:text-5xl font-black text-[#0f172a] tracking-tight leading-[1.1] mt-4">
-                    {product.title}
-                  </h1>
-                </div>
-
-                {/* Ratings & Status */}
-                <div className="flex flex-wrap items-center gap-6 mb-8 py-4 border-y border-[#3AB7AE]/10">
-                  <div className="flex items-center gap-2">
-                    <div className="flex gap-0.5">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <Star
-                          key={i}
-                          className={cn(
-                            "w-5 h-5",
-                            i <= 4
-                              ? "fill-warning text-warning"
-                              : "text-gray-300 fill-gray-200",
-                          )}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm font-black text-[#0f172a]">
-                      {product.rating}
-                    </span>
-                    <span className="text-xs font-bold text-gray-500">
-                      ({product.reviews} đánh giá)
-                    </span>
-                  </div>
-                  <div className="h-5 w-px bg-[#3AB7AE]/20" />
-                  <div className="flex items-center gap-2 text-success">
-                    <CheckCircle2 className="w-5 h-5" />
-                    <span className="text-xs font-black uppercase tracking-widest text-emerald-600">
-                      CÓ SẴN VÉ
-                    </span>
-                  </div>
-                </div>
-
-                {/* Pricing Box - Ticket Style */}
-                <Box
-                  sx={{
-                    mb: 4,
-                    p: 4,
-                    borderRadius: "24px",
-                    bgcolor: "#fff",
-                    border: "2px solid rgba(58, 183, 174, 0.15)",
-                    boxShadow: "0 10px 30px rgba(58, 183, 174, 0.05)",
-                    position: "relative",
-                    overflow: "hidden",
-                    "&::before": {
-                      content: '""',
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      bottom: 0,
-                      width: "6px",
-                      background: "linear-gradient(180deg, #3AB7AE, #5bc8c0)",
-                    }
-                  }}
-                >
-                  <div className="flex items-end gap-4 mb-2">
-                    <span className="text-4xl md:text-5xl font-black text-[#0f172a]">
-                      {formatCurrency(product.price)}
-                    </span>
-                    <span className="text-lg text-gray-400 line-through font-bold mb-1.5">
-                      {formatCurrency(product.originalPrice)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-[#475569] font-semibold">
-                    Giá đã bao gồm VAT. Hành lý (Dịch vụ) trọn gói 12 tháng.
-                  </p>
-                </Box>
-
-                {/* Purchase Operations */}
-                <div className="space-y-5">
-                  <div className="flex gap-4">
-                    <div className="flex items-center justify-between px-2 bg-white rounded-2xl border-2 border-[#3AB7AE]/20 min-w-[140px] shadow-sm">
-                      <button
-                        className="h-10 w-10 text-[#0f172a] flex items-center justify-center hover:bg-gray-50 rounded-lg transition-colors"
-                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      >
-                        <Minus className="w-5 h-5" />
-                      </button>
-                      <span className="font-black text-xl text-[#0f172a]">{quantity}</span>
-                      <button
-                        className="h-10 w-10 text-[#0f172a] flex items-center justify-center hover:bg-gray-50 rounded-lg transition-colors"
-                        onClick={() => setQuantity(quantity + 1)}
-                      >
-                        <Plus className="w-5 h-5" />
-                      </button>
-                    </div>
-                    <Button
-                      variant="primary"
-                      className="flex-1 py-4 md:py-0 rounded-2xl shadow-xl shadow-[#3AB7AE]/30 text-lg tracking-[0.1em]"
-                    >
-                      MUA VÉ NGAY <Zap className="w-5 h-5 ml-2 fill-white" />
-                    </Button>
-                  </div>
-
-                  <div className="flex gap-4">
-                    <Button
-                      variant="outline"
-                      className="flex-1 rounded-2xl border-[#3AB7AE]/30 text-[#0f172a] hover:border-[#3AB7AE]"
-                    >
-                      <ShoppingCart className="w-4 h-4 mr-2" /> THÊM VÀO GIỎ
-                    </Button>
-                    <button className="h-14 w-14 flex items-center justify-center rounded-2xl border-2 border-[#3AB7AE]/20 text-gray-500 hover:text-rose-500 hover:border-rose-200 hover:bg-rose-50 transition-all bg-white shadow-sm">
-                      <Heart className="w-6 h-6" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Micro-Features */}
-                <div className="mt-8 grid grid-cols-2 gap-4">
-                  {[
-                    {
-                      icon: <ShieldCheck className="text-[#3AB7AE] w-6 h-6" />,
-                      title: "Thanh toán an toàn",
-                      desc: "Mã hóa 128-bit",
-                    },
-                    {
-                      icon: <Clock className="text-[#3AB7AE] w-6 h-6" />,
-                      title: "Khởi hành ngay",
-                      desc: "Tự động gửi vé qua Mail",
-                    },
-                  ].map((f, i) => (
-                    <div
-                      key={i}
-                      className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-[#3AB7AE]/10 shadow-sm"
-                    >
-                      <div className="mt-0.5 p-2 bg-[#f0faf9] rounded-xl">{f.icon}</div>
-                      <div>
-                        <h4 className="text-sm font-black text-[#0f172a]">{f.title}</h4>
-                        <p className="text-[10px] text-gray-500 uppercase font-black tracking-wider mt-1">
-                          {f.desc}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
+          {/* ── RIGHT: Product Details ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+          >
+            {/* Category & Status */}
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-[11px] tracking-[0.2em] text-[#999] uppercase">{product.category}</span>
+              <span className="w-1 h-1 rounded-full bg-[#ddd]" />
+              <span className="text-[11px] tracking-[0.1em] text-emerald-500 uppercase flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                Còn hàng
+              </span>
             </div>
 
-            {/* 📚 Tabs Section / Platform Details */}
-            <div className="mt-16 pt-10 border-t border-[#3AB7AE]/10">
-              <div className="flex gap-8 mb-8 overflow-x-auto no-scrollbar pb-2">
-                {[
-                  { id: "description", label: "📄 Bản đồ hành trình" },
-                  { id: "features", label: "✨ Dịch vụ cung cấp" },
-                  { id: "reviews", label: "💬 Đánh giá hành khách" }
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={cn(
-                      "pb-4 text-sm font-black tracking-wider transition-all relative whitespace-nowrap",
-                      activeTab === tab.id ? "text-[#0f172a]" : "text-gray-400 hover:text-gray-600",
-                    )}
-                  >
-                    {tab.label}
-                    {activeTab === tab.id && (
-                      <motion.div
-                        layoutId="activeTab"
-                        className="absolute bottom-0 left-0 right-0 h-1 bg-[#3AB7AE] rounded-t-full"
-                      />
-                    )}
-                  </button>
+            {/* Title */}
+            <h1 className="text-[1.75rem] sm:text-[2.1rem] font-light text-[#1a1a1a] leading-[1.2] tracking-[-0.01em] mb-4">
+              {product.title}
+            </h1>
+
+            {/* Rating */}
+            <div className="flex items-center gap-2.5 mb-8">
+              <div className="flex gap-[2px]">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <Star key={i} className={cn("w-[14px] h-[14px]", i <= Math.round(product.rating) ? "fill-[#1a1a1a] text-[#1a1a1a]" : "fill-[#e5e5e5] text-[#e5e5e5]")} />
                 ))}
               </div>
+              <span className="text-[12px] text-[#999]">{product.rating} · {product.reviews} đánh giá</span>
+            </div>
 
-              <div className="max-w-4xl bg-white rounded-3xl p-6 md:p-10 border border-[#3AB7AE]/10 shadow-sm">
-                <AnimatePresence mode="wait">
-                  {activeTab === "description" && (
-                    <motion.div
-                      key="description"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2 }}
-                      className="text-lg text-[#475569] leading-relaxed font-semibold"
-                    >
-                      {product.description}
-                    </motion.div>
-                  )}
-                  {activeTab === "features" && (
-                    <motion.div
-                      key="features"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2 }}
-                      className="space-y-4"
-                    >
-                      {product.features.map((f, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center gap-4 p-4 rounded-2xl bg-[#f8fafc] border border-[#3AB7AE]/10"
-                        >
-                          <div className="p-1.5 rounded-lg bg-[#3AB7AE]/10 text-[#3AB7AE]">
-                            <CheckCircle2 className="w-5 h-5" />
-                          </div>
-                          <span className="font-black text-[#0f172a]">{f}</span>
-                        </div>
-                      ))}
-                    </motion.div>
-                  )}
-                  {activeTab === "reviews" && (
-                    <motion.div
-                      key="reviews"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="text-center py-10"
-                    >
-                      <Sparkles className="w-10 h-10 text-[#3AB7AE]/30 mx-auto mb-4" />
-                      <p className="font-bold text-gray-500">Hành khách chưa để lại đánh giá (Chuyến đi mới).</p>
-                    </motion.div>
+            {/* Price — always visible, hero-level */}
+            <div className="mb-8">
+              <motion.div key={totalPrice} initial={{ opacity: 0.6 }} animate={{ opacity: 1 }} transition={{ duration: 0.25 }}>
+                <span className="text-[2rem] sm:text-[2.4rem] font-light tracking-tight text-[#1a1a1a]">
+                  {formatCurrency(totalPrice)}
+                </span>
+              </motion.div>
+              {product.originalPrice > accountPrice && (
+                <span className="text-[14px] text-[#bbb] line-through ml-1">{formatCurrency(product.originalPrice * quantity)}</span>
+              )}
+            </div>
+
+            {/* Divider */}
+            <div className="w-12 h-[1px] bg-[#e5e5e5] mb-8" />
+
+            {/* ━━━ ACCOUNT TYPE ━━━ */}
+            {hasAccountTypes && (
+              <div className="mb-7">
+                <p className="text-[12px] tracking-[0.15em] text-[#999] uppercase mb-3">
+                  Thời hạn <span className="text-[#ccc]">*</span>
+                </p>
+                <div className="flex gap-3">
+                  {product.accountTypes!.map((at) => {
+                    const sel = selectedAccountType === at.value;
+                    return (
+                      <button key={at.value} onClick={() => setSelectedAccountType(at.value)}
+                        className={cn(
+                          "px-6 py-3.5 rounded-lg transition-all duration-200 cursor-pointer text-center min-w-[100px]",
+                          sel
+                            ? "bg-[#1a1a1a] text-white"
+                            : "bg-[#fafafa] text-[#666] hover:bg-[#f0f0f0]"
+                        )}>
+                        <span className="block text-[13px] font-medium">{at.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* ━━━ WARRANTY ━━━ */}
+            {hasWarranties && (
+              <div className="mb-7">
+                <p className="text-[12px] tracking-[0.15em] text-[#999] uppercase mb-3">
+                  Bảo hành <span className="text-[#ccc]">*</span>
+                </p>
+                <div className="flex gap-3 flex-wrap">
+                  {availableWarranties.map((w: Warranty & { disabled?: boolean }) => {
+                    const sel = selectedWarranty === w.value && !w.disabled;
+                    return (
+                      <button key={w.value} disabled={w.disabled}
+                        onClick={() => !w.disabled && setSelectedWarranty(w.value)}
+                        className={cn(
+                          "px-5 py-3 rounded-lg transition-all duration-200 text-center",
+                          w.disabled
+                            ? "bg-[#fafafa] text-[#ddd] cursor-not-allowed"
+                            : sel
+                              ? "bg-[#1a1a1a] text-white cursor-pointer"
+                              : "bg-[#fafafa] text-[#666] hover:bg-[#f0f0f0] cursor-pointer"
+                        )}>
+                        <span className="block text-[13px] font-medium">{w.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {!selectedAccountType && hasAccountTypes && (
+                  <p className="mt-2.5 text-[11px] text-[#bbb] flex items-center gap-1.5">
+                    <Info className="w-3 h-3" /> Chọn thời hạn trước
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* ━━━ QUANTITY ━━━ */}
+            <div className="mb-8">
+              <p className="text-[12px] tracking-[0.15em] text-[#999] uppercase mb-3">Số lượng</p>
+              <div className="flex items-center gap-4">
+                <div className="inline-flex items-center border border-[#e5e5e5] rounded-lg overflow-hidden">
+                  <button className="w-11 h-11 flex items-center justify-center text-[#999] hover:text-[#1a1a1a] hover:bg-[#fafafa] transition-colors" onClick={() => handleQuantityChange(quantity - 1)}>
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <input type="text" value={quantityInput} onChange={handleInputChange} onBlur={handleInputBlur}
+                    className="w-12 h-11 text-center text-[14px] font-medium text-[#1a1a1a] bg-transparent outline-none border-x border-[#e5e5e5]" />
+                  <button className="w-11 h-11 flex items-center justify-center text-[#999] hover:text-[#1a1a1a] hover:bg-[#fafafa] transition-colors" onClick={() => handleQuantityChange(quantity + 1)}>
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+                <AnimatePresence>
+                  {showStockWarning && (
+                    <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      className="text-[11px] text-amber-500">Tối đa {stock} sản phẩm</motion.span>
                   )}
                 </AnimatePresence>
               </div>
             </div>
-          </Box>
-        </Box>
+
+            {/* Validation */}
+            <AnimatePresence>
+              {validationError && (
+                <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+                  className="text-[13px] text-rose-500 mb-4">{validationError}</motion.p>
+              )}
+            </AnimatePresence>
+
+            {/* ━━━ CTA ━━━ */}
+            <div className="flex gap-4 mb-8">
+              <button
+                onClick={handleBuyNow}
+                className={cn(
+                  "flex-[2] h-[54px] bg-[#1a1a1a] text-white text-[13px] font-medium tracking-[0.12em] uppercase rounded-lg hover:bg-[#333] transition-all duration-300 flex items-center justify-center gap-2",
+                  !isFormComplete && "opacity-40 cursor-not-allowed hover:bg-[#1a1a1a]"
+                )}>
+                Mua ngay
+              </button>
+              <button className="flex-1 h-[54px] border border-[#e0e0e0] text-[#666] text-[13px] font-medium tracking-[0.05em] uppercase rounded-lg hover:border-[#999] hover:text-[#1a1a1a] transition-all duration-300 flex items-center justify-center gap-2">
+                <ShoppingCart className="w-4 h-4" />
+                Giỏ hàng
+              </button>
+            </div>
+
+            {/* Trust — minimal text only */}
+            <div className="space-y-3 pt-6 border-t border-[#f0f0f0]">
+              {[
+                { icon: <Truck className="w-4 h-4" />, text: "Giao hàng tức thì qua Email" },
+                { icon: <ShieldCheck className="w-4 h-4" />, text: "Bảo hành đổi mới trong thời gian sử dụng" },
+                { icon: <BadgeCheck className="w-4 h-4" />, text: "Thanh toán an toàn · Mã hóa SSL" },
+              ].map((t, i) => (
+                <div key={i} className="flex items-center gap-3 text-[12px] text-[#999]">
+                  <span className="text-[#ccc]">{t.icon}</span>
+                  {t.text}
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* ══════════ DETAILS SECTION ══════════ */}
+        <div className="mt-20 lg:mt-28 max-w-[720px]">
+          {/* Tab navigation — underline style */}
+          <div className="flex gap-8 border-b border-[#f0f0f0] mb-8">
+            {[
+              { id: "description", label: "Mô tả" },
+              { id: "features", label: "Tính năng" },
+              { id: "reviews", label: "Đánh giá" },
+            ].map((tab) => (
+              <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  "pb-3 text-[13px] tracking-[0.05em] transition-all duration-300 relative",
+                  activeTab === tab.id ? "text-[#1a1a1a] font-medium" : "text-[#bbb] hover:text-[#999]"
+                )}>
+                {tab.label}
+                {activeTab === tab.id && (
+                  <motion.div layoutId="tab" className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#1a1a1a]" />
+                )}
+              </button>
+            ))}
+          </div>
+
+          <AnimatePresence mode="wait">
+            {activeTab === "description" && (
+              <motion.p key="d" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="text-[14px] leading-[1.8] text-[#666]">{description}</motion.p>
+            )}
+            {activeTab === "features" && (
+              <motion.div key="f" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
+                {features.map((f, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <CheckCircle2 className="w-4 h-4 text-[#ccc] flex-shrink-0" />
+                    <span className="text-[14px] text-[#666]">{f}</span>
+                  </div>
+                ))}
+              </motion.div>
+            )}
+            {activeTab === "reviews" && (
+              <motion.div key="r" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-12 text-center">
+                <p className="text-[13px] text-[#bbb]">Chưa có đánh giá</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </main>
   );
 };
 
 export default ProductDetailPage;
-

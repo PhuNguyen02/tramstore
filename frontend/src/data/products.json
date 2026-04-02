@@ -1,7 +1,7 @@
 [
   {
     "id": "1",
-    "title": "Duolingo - Super (1 tháng ) chung",
+    "title": "Duolingo - Super",
     "slug": "duolingo-super-1-thng-chung",
     "category": "Học tập",
     "price": 70000,
@@ -11,11 +11,77 @@
     "reviews": 64,
     "discount": 30,
     "tag": "Hot Deal 🔥",
-    "brand": "duolingo"
+    "brand": "duolingo",
+    "stock": 45,
+    "description": "Duolingo Super giúp bạn học ngoại ngữ hiệu quả hơn với các tính năng cao cấp. Không quảng cáo, học offline, theo dõi tiến trình chi tiết và nhiều hơn nữa.",
+    "features": [
+      "Học không quảng cáo",
+      "Tải bài học để học offline",
+      "Theo dõi tiến trình chi tiết",
+      "Mở khóa tất cả bài học",
+      "Bảo hành đổi mới trong thời gian sử dụng",
+      "Kích hoạt tức thì qua Email"
+    ],
+    "accountTypes": [
+      {
+        "label": "1 tháng",
+        "value": "1-month",
+        "price": 70000
+      },
+      {
+        "label": "3 tháng",
+        "value": "3-month",
+        "price": 180000
+      },
+      {
+        "label": "1 năm",
+        "value": "1-year",
+        "price": 600000
+      }
+    ],
+    "warranties": [
+      {
+        "label": "Không bảo hành",
+        "value": "none",
+        "price": 0,
+        "compatibleWith": [
+          "1-month",
+          "3-month",
+          "1-year"
+        ]
+      },
+      {
+        "label": "10 ngày",
+        "value": "10-day",
+        "price": 10000,
+        "compatibleWith": [
+          "1-month",
+          "3-month",
+          "1-year"
+        ]
+      },
+      {
+        "label": "1 tháng",
+        "value": "1-month-warranty",
+        "price": 30000,
+        "compatibleWith": [
+          "3-month",
+          "1-year"
+        ]
+      },
+      {
+        "label": "1 năm",
+        "value": "1-year-warranty",
+        "price": 100000,
+        "compatibleWith": [
+          "1-year"
+        ]
+      }
+    ]
   },
   {
     "id": "5",
-    "title": "Elsa Speak Premium - 1 Tháng",
+    "title": "Elsa Speak Premium",
     "slug": "elsa-speak-premium-1-thng",
     "category": "Học tập",
     "price": 120000,
@@ -25,11 +91,77 @@
     "reviews": 92,
     "discount": 30,
     "tag": "Trending 🚀",
-    "brand": "elsa"
+    "brand": "elsa",
+    "stock": 30,
+    "description": "Elsa Speak Premium - Ứng dụng luyện phát âm tiếng Anh hàng đầu thế giới. AI nhận diện giọng nói và phân tích phát âm chi tiết từng âm tiết.",
+    "features": [
+      "AI phân tích phát âm chi tiết",
+      "1600+ bài học phát âm",
+      "Theo dõi tiến trình hàng ngày",
+      "Luyện hội thoại thực tế",
+      "Bảo hành đổi mới trong thời gian sử dụng",
+      "Kích hoạt tức thì qua Email"
+    ],
+    "accountTypes": [
+      {
+        "label": "1 tháng",
+        "value": "1-month",
+        "price": 120000
+      },
+      {
+        "label": "3 tháng",
+        "value": "3-month",
+        "price": 300000
+      },
+      {
+        "label": "1 năm",
+        "value": "1-year",
+        "price": 900000
+      }
+    ],
+    "warranties": [
+      {
+        "label": "Không bảo hành",
+        "value": "none",
+        "price": 0,
+        "compatibleWith": [
+          "1-month",
+          "3-month",
+          "1-year"
+        ]
+      },
+      {
+        "label": "10 ngày",
+        "value": "10-day",
+        "price": 15000,
+        "compatibleWith": [
+          "1-month",
+          "3-month",
+          "1-year"
+        ]
+      },
+      {
+        "label": "1 tháng",
+        "value": "1-month-warranty",
+        "price": 40000,
+        "compatibleWith": [
+          "3-month",
+          "1-year"
+        ]
+      },
+      {
+        "label": "1 năm",
+        "value": "1-year-warranty",
+        "price": 120000,
+        "compatibleWith": [
+          "1-year"
+        ]
+      }
+    ]
   },
   {
     "id": "9",
-    "title": "Grammarly - 1 tháng ( Premium )",
+    "title": "Grammarly Premium",
     "slug": "grammarly-1-thng-premium",
     "category": "Học tập",
     "price": 160000,
@@ -39,11 +171,77 @@
     "reviews": 120,
     "discount": 30,
     "tag": "Trending 🚀",
-    "brand": "grammarly"
+    "brand": "grammarly",
+    "stock": 25,
+    "description": "Grammarly Premium - Trợ lý viết tiếng Anh thông minh. Kiểm tra ngữ pháp, chính tả, phong cách viết và đạo văn. Hỗ trợ trên mọi nền tảng.",
+    "features": [
+      "Kiểm tra ngữ pháp nâng cao",
+      "Gợi ý cải thiện phong cách viết",
+      "Kiểm tra đạo văn",
+      "Hỗ trợ đa nền tảng (Chrome, Word, Mobile)",
+      "Bảo hành đổi mới trong thời gian sử dụng",
+      "Kích hoạt tức thì qua Email"
+    ],
+    "accountTypes": [
+      {
+        "label": "1 tháng",
+        "value": "1-month",
+        "price": 160000
+      },
+      {
+        "label": "3 tháng",
+        "value": "3-month",
+        "price": 400000
+      },
+      {
+        "label": "1 năm",
+        "value": "1-year",
+        "price": 1200000
+      }
+    ],
+    "warranties": [
+      {
+        "label": "Không bảo hành",
+        "value": "none",
+        "price": 0,
+        "compatibleWith": [
+          "1-month",
+          "3-month",
+          "1-year"
+        ]
+      },
+      {
+        "label": "10 ngày",
+        "value": "10-day",
+        "price": 20000,
+        "compatibleWith": [
+          "1-month",
+          "3-month",
+          "1-year"
+        ]
+      },
+      {
+        "label": "1 tháng",
+        "value": "1-month-warranty",
+        "price": 50000,
+        "compatibleWith": [
+          "3-month",
+          "1-year"
+        ]
+      },
+      {
+        "label": "1 năm",
+        "value": "1-year-warranty",
+        "price": 150000,
+        "compatibleWith": [
+          "1-year"
+        ]
+      }
+    ]
   },
   {
     "id": "13",
-    "title": "Quillbot Premium - 1 Tháng",
+    "title": "Quillbot Premium",
     "slug": "quillbot-premium-1-thng",
     "category": "Học tập",
     "price": 150000,
@@ -53,7 +251,73 @@
     "reviews": 148,
     "discount": 30,
     "tag": "Trending 🚀",
-    "brand": "quillbot"
+    "brand": "quillbot",
+    "stock": 35,
+    "description": "Quillbot Premium - Công cụ paraphrase và viết lại văn bản #1 thế giới. Hỗ trợ tóm tắt, kiểm tra ngữ pháp, dịch thuật và co-writer AI.",
+    "features": [
+      "Paraphrase không giới hạn",
+      "9 chế độ viết lại văn bản",
+      "Tóm tắt văn bản dài",
+      "Kiểm tra ngữ pháp nâng cao",
+      "Bảo hành đổi mới trong thời gian sử dụng",
+      "Kích hoạt tức thì qua Email"
+    ],
+    "accountTypes": [
+      {
+        "label": "1 tháng",
+        "value": "1-month",
+        "price": 150000
+      },
+      {
+        "label": "3 tháng",
+        "value": "3-month",
+        "price": 380000
+      },
+      {
+        "label": "1 năm",
+        "value": "1-year",
+        "price": 1100000
+      }
+    ],
+    "warranties": [
+      {
+        "label": "Không bảo hành",
+        "value": "none",
+        "price": 0,
+        "compatibleWith": [
+          "1-month",
+          "3-month",
+          "1-year"
+        ]
+      },
+      {
+        "label": "10 ngày",
+        "value": "10-day",
+        "price": 15000,
+        "compatibleWith": [
+          "1-month",
+          "3-month",
+          "1-year"
+        ]
+      },
+      {
+        "label": "1 tháng",
+        "value": "1-month-warranty",
+        "price": 45000,
+        "compatibleWith": [
+          "3-month",
+          "1-year"
+        ]
+      },
+      {
+        "label": "1 năm",
+        "value": "1-year-warranty",
+        "price": 130000,
+        "compatibleWith": [
+          "1-year"
+        ]
+      }
+    ]
   },
   {
     "id": "17",
