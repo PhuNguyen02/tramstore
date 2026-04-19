@@ -23,11 +23,23 @@ let ProductsController = class ProductsController {
     findAll() {
         return this.productsService.findAll();
     }
+    search(query) {
+        return this.productsService.search(query);
+    }
+    findByCategory(slug) {
+        return this.productsService.findByCategory(slug);
+    }
     findOne(slug) {
         return this.productsService.findOne(slug);
     }
-    findByCategory(category) {
-        return this.productsService.findByCategory(category);
+    create(data) {
+        return this.productsService.create(data);
+    }
+    update(id, data) {
+        return this.productsService.update(id, data);
+    }
+    remove(id) {
+        return this.productsService.remove(id);
     }
 };
 exports.ProductsController = ProductsController;
@@ -38,6 +50,20 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "findAll", null);
 __decorate([
+    (0, common_1.Get)('search'),
+    __param(0, (0, common_1.Query)('q')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ProductsController.prototype, "search", null);
+__decorate([
+    (0, common_1.Get)('category/:slug'),
+    __param(0, (0, common_1.Param)('slug')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ProductsController.prototype, "findByCategory", null);
+__decorate([
     (0, common_1.Get)(':slug'),
     __param(0, (0, common_1.Param)('slug')),
     __metadata("design:type", Function),
@@ -45,12 +71,27 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "findOne", null);
 __decorate([
-    (0, common_1.Get)('category/:category'),
-    __param(0, (0, common_1.Param)('category')),
+    (0, common_1.Post)(),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], ProductsController.prototype, "create", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], ProductsController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
-], ProductsController.prototype, "findByCategory", null);
+], ProductsController.prototype, "remove", null);
 exports.ProductsController = ProductsController = __decorate([
     (0, common_1.Controller)('products'),
     __metadata("design:paramtypes", [products_service_1.ProductsService])

@@ -4,6 +4,8 @@ import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import theme from "./theme";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
+import { CartProvider } from "@/store/cartStore";
+import CartDrawer from "@/components/cart/CartDrawer";
 
 export default function MUIProvider({
   children,
@@ -14,7 +16,10 @@ export default function MUIProvider({
     <AppRouterCacheProvider>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        {children}
+        <CartProvider>
+          {children}
+          <CartDrawer />
+        </CartProvider>
       </ThemeProvider>
     </AppRouterCacheProvider>
   );

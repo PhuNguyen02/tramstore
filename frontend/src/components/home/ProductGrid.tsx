@@ -9,7 +9,6 @@ import {
   CardMedia,
   CardContent,
   Button,
-  Rating,
   IconButton,
   alpha,
   Stack,
@@ -27,17 +26,23 @@ import { StoreIcon } from "lucide-react";
 import Link from "next/link";
 
 /* ── Types ─────────────────────────────────────────── */
+interface Variant {
+  id: string;
+  label: string;
+  price: number;
+  originalPrice: number;
+  discount: number;
+  stock: number;
+}
+
 interface Product {
   id: string;
   title: string;
+  slug: string;
   category: string;
-  price: number;
-  originalPrice: number;
   image: string;
-  rating: number;
-  reviews: number;
-  discount: number;
   tag?: string;
+  variants: Variant[];
 }
 
 interface ProductGridProps {
@@ -385,7 +390,7 @@ const ProductGrid = ({
                 }}
               >
                 {products.map((product) => (
-                  <Link href={`/product/${product.id}`} key={product.id} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+                  <Link href={`/product/${product.slug}`} key={product.id} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
                   <TrainCar elevation={0}>
                     <CarConnector className="car-connector" />
                     <Wheel
@@ -426,7 +431,7 @@ const ProductGrid = ({
                       >
                         {product.category}
                       </Box>
-                      {product.discount > 0 && (
+                      {product.variants[0]?.discount > 0 && (
                         <Box
                           sx={{
                             position: "absolute",
@@ -441,7 +446,7 @@ const ProductGrid = ({
                             fontWeight: 900,
                           }}
                         >
-                          -{product.discount}%
+                          -{product.variants[0].discount}%
                         </Box>
                       )}
                       <Box
@@ -521,7 +526,7 @@ const ProductGrid = ({
                           }}
                         >
                           <Box>
-                            {product.originalPrice > product.price && (
+                            {product.variants[0]?.originalPrice > product.variants[0]?.price && (
                               <Typography
                                 variant="caption"
                                 sx={{
@@ -531,7 +536,7 @@ const ProductGrid = ({
                                   fontSize: "0.7rem",
                                 }}
                               >
-                                {formatCurrency(product.originalPrice)}
+                                {formatCurrency(product.variants[0].originalPrice)}
                               </Typography>
                             )}
                             <Typography
@@ -541,7 +546,7 @@ const ProductGrid = ({
                                 fontSize: "1.1rem",
                               }}
                             >
-                              {formatCurrency(product.price)}
+                              {formatCurrency(product.variants[0]?.price || 0)}
                             </Typography>
                           </Box>
                           <Stack
@@ -549,17 +554,11 @@ const ProductGrid = ({
                             alignItems="center"
                             spacing={0.5}
                           >
-                            <Rating
-                              value={product.rating}
-                              size="small"
-                              readOnly
-                              sx={{ fontSize: "0.75rem" }}
-                            />
                             <Typography
                               variant="caption"
                               sx={{ fontWeight: 700, opacity: 0.6 }}
                             >
-                              {product.rating}
+                              {product.variants.length} loại
                             </Typography>
                           </Stack>
                         </Box>

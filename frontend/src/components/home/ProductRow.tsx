@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
 import {
   Box,
   Typography,
@@ -8,7 +8,6 @@ import {
   Card,
   CardMedia,
   CardContent,
-  Rating,
   Button,
   alpha,
 } from "@mui/material";
@@ -16,23 +15,28 @@ import {
   ChevronLeft,
   ChevronRight,
   ShoppingCart as CartIcon,
-  Info as InfoIcon,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { formatCurrency } from "@/lib/utils";
 import Link from "next/link";
 
+interface Variant {
+  id: string;
+  label: string;
+  price: number;
+  originalPrice: number;
+  discount: number;
+  stock: number;
+}
+
 interface Product {
   id: string;
   title: string;
+  slug: string;
   category: string;
-  price: number;
-  originalPrice: number;
   image: string;
-  rating: number;
-  reviews: number;
-  discount: number;
-  tag: string;
+  tag?: string;
+  variants: Variant[];
 }
 
 interface ProductRowProps {
@@ -111,114 +115,104 @@ const ProductRow = ({ title, products }: ProductRowProps) => {
       </Box>
 
       <ScrollContainer ref={scrollRef} sx={{ px: 4 }}>
-        {products.map((product) => (
-          <Link href={`/product/${product.id}`} key={product.id} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-          <ProductCard elevation={0}>
-            <Box sx={{ position: "relative" }}>
-              <CardMedia
-                component="img"
-                image={product.image}
-                sx={{ aspectRatio: "16/9", bgcolor: "#f8fafc" }}
-              />
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: 12,
-                  left: 12,
-                  bgcolor: "secondary.main",
-                  color: "#fff",
-                  px: 1,
-                  py: 0.5,
-                  borderRadius: 1.5,
-                  fontWeight: 900,
-                  fontSize: 10,
-                }}
-              >
-                {product.discount}% OFF
-              </Box>
-            </Box>
-
-            <CardContent sx={{ p: 2 }}>
-              <Typography
-                variant="overline"
-                sx={{ color: "text.disabled", fontWeight: 800 }}
-              >
-                {product.category}
-              </Typography>
-              <Typography
-                variant="body2"
-                sx={{
-                  fontWeight: 800,
-                  mb: 1.5,
-                  height: 40,
-                  overflow: "hidden",
-                  display: "-webkit-box",
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: "vertical",
-                }}
-              >
-                {product.title}
-              </Typography>
-
-              <Box
-                sx={{ display: "flex", alignItems: "center", gap: 0.5, mb: 2 }}
-              >
-                <Rating
-                  value={product.rating}
-                  precision={0.5}
-                  readOnly
-                  size="small"
-                />
-                <Typography
-                  variant="caption"
-                  sx={{ fontWeight: 700, color: "text.disabled" }}
-                >
-                  ({product.reviews})
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-end",
-                }}
-              >
-                <Box>
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      textDecoration: "line-through",
-                      color: "text.disabled",
-                      fontWeight: 800,
-                      display: "block",
-                      lineHeight: 1,
-                    }}
-                  >
-                    {formatCurrency(product.originalPrice)}
-                  </Typography>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: 900,
-                      color: "primary.main",
-                      lineHeight: 1,
-                    }}
-                  >
-                    {formatCurrency(product.price)}
-                  </Typography>
+        {products.map((product) => {
+          const baseVariant = product.variants[0];
+          return (
+            <Link href={`/product/${product.slug}`} key={product.id} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+              <ProductCard elevation={0}>
+                <Box sx={{ position: "relative" }}>
+                  <CardMedia
+                    component="img"
+                    image={product.image}
+                    sx={{ aspectRatio: "16/9", bgcolor: "#f8fafc", objectFit: "contain", p: 2 }}
+                  />
+                  {baseVariant?.discount > 0 && (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: 12,
+                        left: 12,
+                        bgcolor: "secondary.main",
+                        color: "#fff",
+                        px: 1,
+                        py: 0.5,
+                        borderRadius: 1.5,
+                        fontWeight: 900,
+                        fontSize: 10,
+                      }}
+                    >
+                      {baseVariant.discount}% OFF
+                    </Box>
+                  )}
                 </Box>
-                <IconButton
-                  color="primary"
-                  sx={{ bgcolor: alpha("#3AB7AE", 0.1), borderRadius: 3 }}
-                >
-                  <CartIcon fontSize="small" />
-                </IconButton>
-              </Box>
-            </CardContent>
-          </ProductCard>
-          </Link>
-        ))}
+
+                <CardContent sx={{ p: 2 }}>
+                  <Typography
+                    variant="overline"
+                    sx={{ color: "text.disabled", fontWeight: 800 }}
+                  >
+                    {product.category}
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 800,
+                      mb: 1.5,
+                      height: 40,
+                      overflow: "hidden",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                    }}
+                  >
+                    {product.title}
+                  </Typography>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-end",
+                    }}
+                  >
+                    <Box>
+                      {baseVariant?.originalPrice > baseVariant?.price && (
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            textDecoration: "line-through",
+                            color: "text.disabled",
+                            fontWeight: 800,
+                            display: "block",
+                            lineHeight: 1,
+                          }}
+                        >
+                          {formatCurrency(baseVariant.originalPrice)}
+                        </Typography>
+                      )}
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          fontWeight: 900,
+                          color: "primary.main",
+                          lineHeight: 1,
+                        }}
+                      >
+                        {formatCurrency(baseVariant?.price || 0)}
+                      </Typography>
+                    </Box>
+                    <IconButton
+                      color="primary"
+                      sx={{ bgcolor: alpha("#3AB7AE", 0.1), borderRadius: 3 }}
+                    >
+                      <CartIcon fontSize="small" />
+                    </IconButton>
+                  </Box>
+                </CardContent>
+              </ProductCard>
+            </Link>
+          );
+        })}
       </ScrollContainer>
     </Box>
   );

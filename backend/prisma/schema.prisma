@@ -1,12 +1,120 @@
-datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
-}
-
 generator client {
   provider = "prisma-client-js"
 }
 
-model User {
-  id String @id @default(uuid())
+datasource db {
+  provider = "sqlite"
+}
+
+model Category {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String    @unique
+  description String?   
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("categories")
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?  
+  price       Float
+  oldPrice    Float?
+  stock       Int      @default(0)
+  images      String?  
+  status      String   @default("active")
+  tag         String?
+  brand       String?
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  variants    Variant[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("products")
+}
+
+model Variant {
+  id            String   @id @default(uuid())
+  name          String   
+  price         Float
+  originalPrice Float?
+  discount      Int?
+  stock         Int      @default(0)
+  description   String?
+  features      String?   // JSON string
+  warranties    String?   // JSON string
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id])
+
+  @@map("variants")
+}
+
+// ═══════════════════════════════════════════════════════════
+// 🛒 Order & Payment System
+// ═══════════════════════════════════════════════════════════
+
+// OrderStatus: PENDING | AWAITING_PAYMENT | PAID | FAILED | EXPIRED | CANCELLED | COMPLETED | REFUNDED
+// PaymentMethod: VIETQR | BANK_TRANSFER
+// PaymentStatus: INITIATED | COMPLETED | FAILED | REFUNDED
+//
+// Luồng: PENDING → AWAITING_PAYMENT → (webhook SePay) → PAID → (admin gửi account) → COMPLETED
+
+model Order {
+  id            String    @id @default(uuid())
+  status        String    @default("PENDING")  // OrderStatus
+
+  // Thông tin khách hàng
+  customerEmail String
+  customerName  String?
+  customerPhone String?
+
+  // Nội dung đơn hàng
+  productId     String
+  variantId     String
+  quantity      Int       @default(1)
+  unitPrice     Float
+  totalAmount   Float
+
+  // Ghi chú
+  note          String?
+
+  // Quan hệ
+  payments      Payment[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  expiredAt     DateTime? // deadline thanh toán
+
+  @@map("orders")
+}
+
+model Payment {
+  id                String    @id @default(uuid())
+  orderId           String
+  order             Order     @relation(fields: [orderId], references: [id])
+
+  method            String    // PaymentMethod
+  status            String    @default("INITIATED") // PaymentStatus
+
+  // Dữ liệu từ cổng thanh toán
+  gatewayTxId       String?   // transaction ID từ VNPay/Stripe/...
+  gatewayData       String?   // raw JSON response từ gateway
+  amount            Float
+
+  // Webhook
+  webhookReceivedAt DateTime?
+  webhookPayload    String?   // raw payload để audit
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([orderId])
+  @@index([gatewayTxId])
+  @@map("payments")
 }

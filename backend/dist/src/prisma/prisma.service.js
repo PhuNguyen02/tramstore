@@ -12,9 +12,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PrismaService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
+const adapter_better_sqlite3_1 = require("@prisma/adapter-better-sqlite3");
 let PrismaService = class PrismaService extends client_1.PrismaClient {
     constructor() {
+        const adapter = new adapter_better_sqlite3_1.PrismaBetterSqlite3({
+            url: process.env.DATABASE_URL || 'file:./prisma/dev.db',
+        });
         super({
+            adapter,
             log: process.env.NODE_ENV === 'development'
                 ? ['query', 'info', 'warn', 'error']
                 : ['error'],

@@ -39,6 +39,10 @@ import {
 import { styled, keyframes } from "@mui/material/styles";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useCart } from "@/store/cartStore";
+import { useAuth } from "@/store/authStore";
+import AuthModal from "@/components/auth/AuthModal";
+import { useRouter } from "next/navigation";
 
 /* ══════════════════════════════════════════════════════
    ⭐ ANIMATIONS & KEYFRAMES
@@ -129,9 +133,21 @@ const NavButton = styled(IconButton)(({ theme }) => ({
    🏗️ NAVBAR COMPONENT
    ══════════════════════════════════════════════════════ */
 const Navbar = () => {
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const pathname = usePathname();
+  const { totalItems, openDrawer } = useCart();
+  const { isAuthenticated, user, logout } = useAuth();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -178,10 +194,18 @@ const Navbar = () => {
             </Link>
 
             {/* SEARCH AREA (HIDDEN ON MOBILE, CENTRAL ON DESKTOP) */}
-            <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent: "center" }}>
+            <Box 
+              component="form" 
+              onSubmit={handleSearch}
+              sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent: "center" }}
+            >
               <SearchWrapper>
                 <SearchIcon sx={{ position: "absolute", left: 14, color: "text.disabled", fontSize: 20 }} />
-                <InputField placeholder="Tìm kiếm ứng dụng, dịch vụ premium..." />
+                <InputField 
+                  placeholder="Tìm kiếm ứng dụng, dịch vụ premium..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
                 <Box 
                   sx={{ 
                     position: "absolute", right: 6, 
@@ -190,7 +214,7 @@ const Navbar = () => {
                     display: { xs: "none", lg: "flex" }, alignItems: "center", gap: 0.5
                   }}
                 >
-                  <Typography variant="caption" sx={{ fontWeight: 800, color: "text.disabled", fontSize: 10 }}>⌘K</Typography>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: "text.disabled", fontSize: 10 }}>ENTER</Typography>
                 </Box>
               </SearchWrapper>
             </Box>
@@ -209,8 +233,9 @@ const Navbar = () => {
 
               <Divider orientation="vertical" flexItem sx={{ mx: 0.5, height: 28, alignSelf: "center", display: { xs: "none", md: "block" } }} />
 
-              <Tooltip title="Giỏ vé của bạn">
+              <Tooltip title="Giỏ hàng">
                 <Button
+                  onClick={openDrawer}
                   sx={{
                     px: { xs: 1.5, md: 2.5 }, py: 1.2,
                     borderRadius: "14px",
@@ -220,29 +245,73 @@ const Navbar = () => {
                     display: "flex", alignItems: "center", gap: 1.5
                   }}
                 >
-                  <CartIcon />
+                  <Badge badgeContent={totalItems} color="primary" sx={{ "& .MuiBadge-badge": { fontWeight: 900, fontSize: "0.6rem" } }}>
+                    <CartIcon />
+                  </Badge>
                   <Box sx={{ textAlign: "left", display: { xs: "none", xl: "block" } }}>
-                    <Typography variant="caption" sx={{ display: "block", color: "inherit", fontWeight: 800, lineHeight: 1 }}>Checkout</Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 900, color: "#0f172a", lineHeight: 1, mt: 0.3 }}>250.000đ</Typography>
+                    <Typography variant="caption" sx={{ display: "block", color: "inherit", fontWeight: 800, lineHeight: 1 }}>Giỏ hàng</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 900, color: "#0f172a", lineHeight: 1, mt: 0.3 }}>
+                      {totalItems > 0 ? `${totalItems} SP` : "Trống"}
+                    </Typography>
                   </Box>
                 </Button>
               </Tooltip>
 
-              <Button
-                variant="contained"
-                disableElevation
-                startIcon={<UserIcon />}
-                sx={{
-                  display: { xs: "none", md: "flex" },
-                  bgcolor: "#0f172a",
-                  fontWeight: 800,
-                  px: 3, height: 44, borderRadius: "14px",
-                  textTransform: "none", fontSize: "0.85rem",
-                  "&:hover": { bgcolor: "#1e293b" }
-                }}
-              >
-                Đăng nhập
-              </Button>
+              {isAuthenticated ? (
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-end",
+                      display: { xs: "none", lg: "flex" }
+                    }}
+                  >
+                    <Typography sx={{ fontWeight: 900, fontSize: "0.85rem", color: "#0f172a", lineHeight: 1 }}>
+                      {user?.name}
+                    </Typography>
+                    <Typography 
+                      onClick={logout}
+                      sx={{ 
+                        fontWeight: 800, 
+                        fontSize: "0.65rem", 
+                        color: "error.main", 
+                        cursor: "pointer",
+                        "&:hover": { textDecoration: "underline" }
+                      }}
+                    >
+                      Đăng xuất
+                    </Typography>
+                  </Box>
+                  <IconButton
+                    sx={{ 
+                      width: 44, height: 44, 
+                      bgcolor: alpha("#3AB7AE", 0.1), 
+                      border: "2px solid #fff",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.05)"
+                    }}
+                  >
+                    <UserIcon sx={{ color: "primary.main" }} />
+                  </IconButton>
+                </Stack>
+              ) : (
+                <Button
+                  variant="contained"
+                  disableElevation
+                  startIcon={<UserIcon />}
+                  onClick={() => setAuthOpen(true)}
+                  sx={{
+                    display: { xs: "none", md: "flex" },
+                    bgcolor: "#0f172a",
+                    fontWeight: 800,
+                    px: 3, height: 44, borderRadius: "14px",
+                    textTransform: "none", fontSize: "0.85rem",
+                    "&:hover": { bgcolor: "#1e293b" }
+                  }}
+                >
+                  Đăng nhập
+                </Button>
+              )}
 
               <IconButton sx={{ display: { md: "none" }, bgcolor: "#f1f5f9", borderRadius: "12px" }} onClick={() => setMobileOpen(true)}>
                 <MenuIcon />
@@ -327,6 +396,9 @@ const Navbar = () => {
           </Box>
         </Box>
       </Drawer>
+
+      {/* AUTH MODAL */}
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </>
   );
 };

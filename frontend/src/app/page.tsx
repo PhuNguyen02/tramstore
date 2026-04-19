@@ -31,30 +31,93 @@ import {
   StationBanner,
 } from "@/components/home/TrainJourney";
 import StationNav from "@/components/home/StationNav";
-import productsData from "@/data/products.json";
+import { api, ApiProduct } from "@/lib/api";
 
 export default function Home() {
-  const flashSaleProducts = [...productsData]
-    .sort((a, b) => b.discount - a.discount)
+  const [products, setProducts] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const data = await api.products.getAll();
+        // Map API data to original expected format
+        const mappedData = data.map((p: ApiProduct) => ({
+          id: p.id,
+          title: p.name,
+          slug: p.slug,
+          category: p.category.name,
+          image: p.images ? JSON.parse(p.images)[0] : "/file.svg",
+          tag: p.tag,
+          brand: p.brand,
+          variants: p.variants.map((v) => ({
+            id: v.id,
+            label: v.name,
+            price: v.price,
+            originalPrice: v.originalPrice,
+            discount: v.discount,
+            stock: v.stock,
+            description: v.description,
+            features: v.features ? JSON.parse(v.features) : [],
+            warranties: v.warranties ? JSON.parse(v.warranties) : [],
+          })),
+        }));
+        setProducts(mappedData);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  const flashSaleProducts = [...products]
+    .sort((a: any, b: any) => {
+      const maxDiscountA = a.variants.length > 0 ? Math.max(...a.variants.map((v: any) => v.discount || 0)) : 0;
+      const maxDiscountB = b.variants.length > 0 ? Math.max(...b.variants.map((v: any) => v.discount || 0)) : 0;
+      return maxDiscountB - maxDiscountA;
+    })
     .slice(0, 6);
-  const aiProducts = productsData
-    .filter((p) => p.category === "AI")
+
+  const aiProducts = products
+    .filter((p: any) => 
+      p.category === "AI" || 
+      p.category === "AI & Công nghệ" || 
+      p.category === "AI Tools"
+    )
     .slice(0, 6);
-  const entertainmentProducts = productsData
-    .filter((p) => p.category === "Giải trí")
+
+  const entertainmentProducts = products
+    .filter((p: any) => p.category === "Giải trí" || p.category === "Entertainment")
     .slice(0, 6);
-  const workProducts = productsData
-    .filter((p) => p.category === "Làm việc - lưu trữ")
+
+  const workProducts = products
+    .filter((p: any) => p.category === "Làm việc - lưu trữ" || p.category === "Work & Storage")
     .slice(0, 6);
-  const educationProducts = productsData
-    .filter((p) => p.category === "Học tập")
+
+  const educationProducts = products
+    .filter((p: any) => p.category === "Học tập" || p.category === "Education")
     .slice(0, 6);
-  const vpnProducts = productsData
-    .filter((p) => p.category === "VPN")
+
+  const vpnProducts = products
+    .filter((p: any) => p.category === "VPN")
     .slice(0, 6);
-  const softwareProducts = productsData
-    .filter((p) => p.category === "Phần mềm")
+
+  const softwareProducts = products
+    .filter((p: any) => p.category === "Phần mềm" || p.category === "Software")
     .slice(0, 6);
+
+  if (loading) {
+    return (
+      <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
+        <Navbar />
+        <Container sx={{ py: 20, textAlign: "center" }}>
+          <Typography>Đang tải trạm dữ liệu...</Typography>
+        </Container>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
@@ -328,7 +391,7 @@ export default function Home() {
                           variant="caption"
                           sx={{ color: "rgba(255,255,255,0.4)" }}
                         >
-                          Chỉ từ {product.price.toLocaleString("vi-VN")}đ
+                          Chỉ từ {(product.variants[0]?.price ?? 0).toLocaleString("vi-VN")}đ
                         </Typography>
                       </Box>
                       <Button

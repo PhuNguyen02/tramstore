@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Box, Container, Grid, Typography, Button, alpha } from "@mui/material";
+import { Box, Container, Grid, Typography, Button, alpha, Chip } from "@mui/material";
 import {
   ConfirmationNumberOutlined as TicketIcon,
   FlashOn as FlashIcon,
@@ -13,17 +13,23 @@ import { formatCurrency } from "@/lib/utils";
 import { DepartureBoard } from "./TrainJourney";
 import Link from "next/link";
 
+interface Variant {
+  id: string;
+  label: string;
+  price: number;
+  originalPrice: number;
+  discount: number;
+  stock: number;
+}
+
 interface Product {
   id: string;
   title: string;
+  slug: string;
   category: string;
-  price: number;
-  originalPrice: number;
   image: string;
-  rating: number;
-  reviews: number;
-  discount: number;
   tag?: string;
+  variants: Variant[];
 }
 
 /* ── Animations ────────────────────────────────────── */
@@ -142,301 +148,309 @@ const FlashSaleStation = ({ products }: { products: Product[] }) => {
           {/* ── Departure rows ── */}
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2.2 }}>
             {products.map((product, index) => (
-              <Link href={`/product/${product.id}`} key={product.id} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-              <DepartureRow>
-                {/* Row number — ticket style */}
-                <Box
-                  className="row-number"
-                  sx={{
-                    width: { xs: 28, md: "4%" },
-                    minWidth: 28,
-                    height: 28,
-                    borderRadius: "8px",
-                    border: "1.5px solid rgba(58, 183, 174, 0.12)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#94a3b8",
-                    fontWeight: 900,
-                    fontSize: "0.7rem",
-                    fontFamily: "'JetBrains Mono', monospace",
-                    transition: "all 0.3s ease",
-                    flexShrink: 0,
-                  }}
-                >
-                  {String(index + 1).padStart(2, "0")}
-                </Box>
-
-                {/* Product image + title */}
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1.5,
-                    width: { xs: "55%", md: "38%" },
-                    minWidth: 0,
-                  }}
-                >
+              <Link
+                href={`/product/${product.slug}`}
+                key={product.id}
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
+                  display: "block",
+                }}
+              >
+                <DepartureRow>
+                  {/* Row number — ticket style */}
                   <Box
-                    className="row-image"
+                    className="row-number"
                     sx={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: "12px",
-                      backgroundColor: "#f8fafc",
-                      border: "1.5px solid rgba(58, 183, 174, 0.08)",
+                      width: { xs: 28, md: "4%" },
+                      minWidth: 28,
+                      height: 28,
+                      borderRadius: "8px",
+                      border: "1.5px solid rgba(58, 183, 174, 0.12)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      p: 0.6,
-                      flexShrink: 0,
+                      color: "#94a3b8",
+                      fontWeight: 900,
+                      fontSize: "0.7rem",
+                      fontFamily: "'JetBrains Mono', monospace",
                       transition: "all 0.3s ease",
+                      flexShrink: 0,
                     }}
                   >
-                    <img
-                      src={product.image}
-                      alt={product.title}
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        objectFit: "contain",
-                      }}
-                    />
+                    {String(index + 1).padStart(2, "0")}
                   </Box>
-                  <Box sx={{ overflow: "hidden", minWidth: 0 }}>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: "#0f172a",
-                        fontWeight: 800,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        fontSize: "0.85rem",
-                        lineHeight: 1.3,
-                      }}
-                    >
-                      {product.title}
-                    </Typography>
-                    {/* Mobile: show category inline */}
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: "#64748b",
-                        fontWeight: 600,
-                        fontSize: "0.65rem",
-                        display: { xs: "block", md: "none" },
-                      }}
-                    >
-                      {product.category} • -{product.discount}%
-                    </Typography>
-                  </Box>
-                </Box>
 
-                {/* Category — route badge */}
-                <Box
-                  sx={{
-                    width: "14%",
-                    textAlign: "center",
-                    display: { xs: "none", md: "flex" },
-                    justifyContent: "center",
-                  }}
-                >
+                  {/* Product image + title */}
                   <Box
                     sx={{
-                      display: "inline-flex",
+                      display: "flex",
                       alignItems: "center",
-                      gap: 0.5,
-                      px: 1.5,
-                      py: 0.4,
-                      borderRadius: "8px",
-                      bgcolor: alpha("#3AB7AE", 0.08),
-                      border: "1px solid rgba(58, 183, 174, 0.12)",
+                      gap: 1.5,
+                      width: { xs: "55%", md: "38%" },
+                      minWidth: 0,
                     }}
                   >
-                    <TrainIcon
+                    <Box
+                      className="row-image"
                       sx={{
-                        fontSize: 11,
-                        color: "#3AB7AE",
-                      }}
-                    />
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: "#3AB7AE",
-                        fontWeight: 800,
-                        fontSize: "0.6rem",
-                        letterSpacing: 0.3,
+                        width: 44,
+                        height: 44,
+                        borderRadius: "12px",
+                        backgroundColor: "#f8fafc",
+                        border: "1.5px solid rgba(58, 183, 174, 0.08)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        p: 0.6,
+                        flexShrink: 0,
+                        transition: "all 0.3s ease",
                       }}
                     >
-                      {product.category}
-                    </Typography>
+                      <img
+                        src={product.image}
+                        alt={product.title}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "contain",
+                        }}
+                      />
+                    </Box>
+                    <Box sx={{ overflow: "hidden", minWidth: 0 }}>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: "#0f172a",
+                          fontWeight: 800,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          fontSize: "0.85rem",
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        {product.title}
+                      </Typography>
+                      {/* Mobile: show category inline */}
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "#64748b",
+                          fontWeight: 600,
+                          fontSize: "0.65rem",
+                          display: { xs: "block", md: "none" },
+                        }}
+                      >
+                        {product.category} • -{product.variants[0]?.discount || 0}%
+                      </Typography>
+                    </Box>
                   </Box>
-                </Box>
 
-                {/* Status — live indicator */}
-                <Box
-                  sx={{
-                    width: "12%",
-                    display: { xs: "none", md: "flex" },
-                    justifyContent: "center",
-                  }}
-                >
+                  {/* Category — route badge */}
                   <Box
                     sx={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 0.6,
-                      px: 1.2,
-                      py: 0.4,
-                      borderRadius: "8px",
-                      bgcolor: "rgba(34, 197, 94, 0.06)",
-                      border: "1px solid rgba(34, 197, 94, 0.15)",
+                      width: "14%",
+                      textAlign: "center",
+                      display: { xs: "none", md: "flex" },
+                      justifyContent: "center",
                     }}
                   >
                     <Box
                       sx={{
-                        width: 5,
-                        height: 5,
-                        borderRadius: "50%",
-                        animation: `${pulseGreen} 2s ease-in-out infinite`,
-                        animationDelay: `${index * 0.25}s`,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 0.5,
+                        px: 1.5,
+                        py: 0.4,
+                        borderRadius: "8px",
+                        bgcolor: alpha("#3AB7AE", 0.08),
+                        border: "1px solid rgba(58, 183, 174, 0.12)",
                       }}
-                    />
+                    >
+                      <TrainIcon
+                        sx={{
+                          fontSize: 11,
+                          color: "#3AB7AE",
+                        }}
+                      />
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "#3AB7AE",
+                          fontWeight: 800,
+                          fontSize: "0.6rem",
+                          letterSpacing: 0.3,
+                        }}
+                      >
+                        {product.category}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  {/* Status — live indicator */}
+                  <Box
+                    sx={{
+                      width: "12%",
+                      display: { xs: "none", md: "flex" },
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 0.6,
+                        px: 1.2,
+                        py: 0.4,
+                        borderRadius: "8px",
+                        bgcolor: "rgba(34, 197, 94, 0.06)",
+                        border: "1px solid rgba(34, 197, 94, 0.15)",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 5,
+                          height: 5,
+                          borderRadius: "50%",
+                          animation: `${pulseGreen} 2s ease-in-out infinite`,
+                          animationDelay: `${index * 0.25}s`,
+                        }}
+                      />
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: "#16a34a",
+                          fontWeight: 800,
+                          fontSize: "0.55rem",
+                          letterSpacing: 0.5,
+                        }}
+                      >
+                        CÒN VÉ
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  {/* Original price */}
+                  <Box
+                    sx={{
+                      width: "10%",
+                      textAlign: "right",
+                      display: { xs: "none", md: "block" },
+                    }}
+                  >
                     <Typography
                       variant="caption"
                       sx={{
-                        color: "#16a34a",
-                        fontWeight: 800,
-                        fontSize: "0.55rem",
-                        letterSpacing: 0.5,
+                        color: "#94a3b8",
+                        textDecoration: "line-through",
+                        fontWeight: 600,
+                        fontSize: "0.65rem",
+                        fontFamily: "'JetBrains Mono', monospace",
                       }}
                     >
-                      CÒN VÉ
+                      {formatCurrency(product.variants[0]?.originalPrice || 0)}
                     </Typography>
                   </Box>
-                </Box>
 
-                {/* Original price */}
-                <Box
-                  sx={{
-                    width: "10%",
-                    textAlign: "right",
-                    display: { xs: "none", md: "block" },
-                  }}
-                >
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: "#94a3b8",
-                      textDecoration: "line-through",
-                      fontWeight: 600,
-                      fontSize: "0.65rem",
-                      fontFamily: "'JetBrains Mono', monospace",
-                    }}
-                  >
-                    {formatCurrency(product.originalPrice)}
-                  </Typography>
-                </Box>
-
-                {/* Sale price + discount */}
-                <Box
-                  sx={{
-                    width: { xs: "30%", md: "12%" },
-                    textAlign: "right",
-                  }}
-                >
+                  {/* Sale price + discount */}
                   <Box
                     sx={{
+                      width: { xs: "30%", md: "12%" },
+                      textAlign: "right",
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "flex-end",
+                        gap: 1,
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          color: "#3AB7AE",
+                          fontWeight: 900,
+                          fontSize: { xs: "0.85rem", md: "1rem" },
+                          fontFamily: "'JetBrains Mono', monospace",
+                          lineHeight: 1,
+                        }}
+                      >
+                        {formatCurrency(product.variants[0]?.price || 0)}
+                      </Typography>
+                    </Box>
+                    {/* Mobile discount */}
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "#94a3b8",
+                        textDecoration: "line-through",
+                        fontWeight: 600,
+                        fontSize: "0.6rem",
+                        display: { xs: "block", md: "none" },
+                      }}
+                    >
+                      {formatCurrency(product.variants[0]?.originalPrice || 0)}
+                    </Typography>
+                  </Box>
+
+                  {/* Action: Ticket button + discount pill */}
+                  <Box
+                    sx={{
+                      width: { xs: "15%", md: "10%" },
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "flex-end",
                       gap: 1,
                     }}
                   >
-                    <Typography
+                    {/* Discount badge */}
+                    <Box
                       sx={{
-                        color: "#3AB7AE",
+                        bgcolor: alpha("#ef4444", 0.08),
+                        border: "1px solid rgba(239, 68, 68, 0.15)",
+                        color: "#ef4444",
+                        px: 1,
+                        py: 0.3,
+                        borderRadius: "8px",
                         fontWeight: 900,
-                        fontSize: { xs: "0.85rem", md: "1rem" },
-                        fontFamily: "'JetBrains Mono', monospace",
-                        lineHeight: 1,
+                        fontSize: "0.65rem",
+                        animation: `${flicker} 2.5s ease-in-out infinite`,
+                        animationDelay: `${index * 0.4}s`,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 0.3,
+                        whiteSpace: "nowrap",
                       }}
                     >
-                      {formatCurrency(product.price)}
-                    </Typography>
-                  </Box>
-                  {/* Mobile discount */}
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: "#94a3b8",
-                      textDecoration: "line-through",
-                      fontWeight: 600,
-                      fontSize: "0.6rem",
-                      display: { xs: "block", md: "none" },
-                    }}
-                  >
-                    {formatCurrency(product.originalPrice)}
-                  </Typography>
-                </Box>
+                      <FlashIcon sx={{ fontSize: 10 }} />-{product.variants[0]?.discount || 0}%
+                    </Box>
 
-                {/* Action: Ticket button + discount pill */}
-                <Box
-                  sx={{
-                    width: { xs: "15%", md: "10%" },
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "flex-end",
-                    gap: 1,
-                  }}
-                >
-                  {/* Discount badge */}
-                  <Box
-                    sx={{
-                      bgcolor: alpha("#ef4444", 0.08),
-                      border: "1px solid rgba(239, 68, 68, 0.15)",
-                      color: "#ef4444",
-                      px: 1,
-                      py: 0.3,
-                      borderRadius: "8px",
-                      fontWeight: 900,
-                      fontSize: "0.65rem",
-                      animation: `${flicker} 2.5s ease-in-out infinite`,
-                      animationDelay: `${index * 0.4}s`,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 0.3,
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    <FlashIcon sx={{ fontSize: 10 }} />-{product.discount}%
-                  </Box>
-
-                  {/* Ticket button (desktop: slide in on hover) */}
-                  <Button
-                    className="row-ticket-btn"
-                    size="small"
-                    sx={{
-                      minWidth: 0,
-                      p: 0.8,
-                      borderRadius: "10px",
-                      bgcolor: alpha("#3AB7AE", 0.1),
-                      color: "#3AB7AE",
-                      opacity: { xs: 1, md: 0 },
-                      transform: { md: "translateX(8px)" },
-                      transition: "all 0.3s ease",
-                      "&:hover": {
-                        bgcolor: alpha("#3AB7AE", 0.2),
+                    {/* Ticket button (desktop: slide in on hover) */}
+                    <Button
+                      className="row-ticket-btn"
+                      size="small"
+                      sx={{
+                        minWidth: 0,
+                        p: 0.8,
+                        borderRadius: "10px",
+                        bgcolor: alpha("#3AB7AE", 0.1),
                         color: "#3AB7AE",
-                      },
-                      display: { xs: "none", md: "flex" },
-                    }}
-                  >
-                    <TicketIcon sx={{ fontSize: 18 }} />
-                  </Button>
-                </Box>
-              </DepartureRow>
+                        opacity: { xs: 1, md: 0 },
+                        transform: { md: "translateX(8px)" },
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          bgcolor: alpha("#3AB7AE", 0.2),
+                          color: "#3AB7AE",
+                        },
+                        display: { xs: "none", md: "flex" },
+                      }}
+                    >
+                      <TicketIcon sx={{ fontSize: 18 }} />
+                    </Button>
+                  </Box>
+                </DepartureRow>
               </Link>
             ))}
           </Box>
