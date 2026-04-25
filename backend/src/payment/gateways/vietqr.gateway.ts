@@ -59,7 +59,7 @@ export class VietqrGateway implements IPaymentGateway {
     );
 
     return {
-      gatewayTxId: `VQR_${order.id}`,
+      gatewayTxId: transferContent,
       qrData: qrUrl,
       rawResponse: {
         bankName: this.bankName,

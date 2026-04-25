@@ -12,12 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateOrderDto = void 0;
 const class_validator_1 = require("class-validator");
 const PAYMENT_METHODS = [
-    'PAYOS',
+    'VIETQR',
     'BANK_TRANSFER',
-    'VNPAY',
-    'MOMO',
-    'STRIPE',
-    'PAYPAL',
 ];
 class CreateOrderDto {
     customerEmail;
@@ -25,7 +21,7 @@ class CreateOrderDto {
     customerPhone;
     productId;
     variantId;
-    paymentMethod;
+    paymentMethod = 'VIETQR';
     note;
 }
 exports.CreateOrderDto = CreateOrderDto;
@@ -35,12 +31,12 @@ __decorate([
 ], CreateOrderDto.prototype, "customerEmail", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNotEmpty)({ message: 'Vui lòng nhập họ và tên' }),
     __metadata("design:type", String)
 ], CreateOrderDto.prototype, "customerName", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsNotEmpty)({ message: 'Vui lòng nhập số điện thoại' }),
     __metadata("design:type", String)
 ], CreateOrderDto.prototype, "customerPhone", void 0);
 __decorate([
@@ -55,6 +51,7 @@ __decorate([
     (0, class_validator_1.IsIn)(PAYMENT_METHODS, {
         message: `Phương thức thanh toán phải là một trong: ${PAYMENT_METHODS.join(', ')}`,
     }),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], CreateOrderDto.prototype, "paymentMethod", void 0);
 __decorate([

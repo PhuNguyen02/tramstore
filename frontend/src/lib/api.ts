@@ -40,6 +40,15 @@ export interface ApiCategory {
   description: string | null;
 }
 
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string | null;
+  role: string;
+  createdAt: string;
+}
+
 // ═══════════════════════════════════════════════════════════
 // 🛒 Order & Payment Types
 // ═══════════════════════════════════════════════════════════
@@ -167,6 +176,54 @@ export const api = {
       });
       if (!res.ok) throw new Error('Failed to cancel order');
       return res.json();
+    },
+  },
+
+  // ═══════════════════════════════════════════════════
+  // 👤 Auth API
+  // ═══════════════════════════════════════════════════
+  auth: {
+    register: async (data: { name: string; email: string; password: string }) => {
+      const res = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Đăng ký thất bại');
+      }
+      return res.json() as Promise<{ user: AuthUser; token: string }>;
+    },
+
+    login: async (data: { email: string; password: string }) => {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Email hoặc mật khẩu không đúng');
+      }
+      return res.json() as Promise<{ user: AuthUser; token: string }>;
+    },
+
+    verify: async (token: string) => {
+      const res = await fetch(`${API_BASE}/auth/verify`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Token invalid');
+      return res.json() as Promise<AuthUser>;
+    },
+
+    getProfile: async (token: string) => {
+      const res = await fetch(`${API_BASE}/auth/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Unauthorized');
+      return res.json() as Promise<AuthUser>;
     },
   },
 };

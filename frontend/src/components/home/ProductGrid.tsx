@@ -526,41 +526,36 @@ const ProductGrid = ({
                           }}
                         >
                           <Box>
-                            {product.variants[0]?.originalPrice > product.variants[0]?.price && (
-                              <Typography
-                                variant="caption"
-                                sx={{
-                                  color: "text.disabled",
-                                  textDecoration: "line-through",
-                                  display: "block",
-                                  fontSize: "0.7rem",
-                                }}
-                              >
-                                {formatCurrency(product.variants[0].originalPrice)}
-                              </Typography>
-                            )}
+                            <Typography
+                              variant="caption"
+                              sx={{ color: "#94a3b8", fontSize: "0.68rem", fontWeight: 600 }}
+                            >
+                              Từ
+                            </Typography>
                             <Typography
                               sx={{
                                 color: accent,
                                 fontWeight: 900,
                                 fontSize: "1.1rem",
+                                lineHeight: 1.1,
                               }}
                             >
-                              {formatCurrency(product.variants[0]?.price || 0)}
+                              {formatCurrency(Math.min(...product.variants.map(v => v.price)))}
                             </Typography>
                           </Box>
-                          <Stack
-                            direction="row"
-                            alignItems="center"
-                            spacing={0.5}
+                          <Box
+                            sx={{
+                              bgcolor: alpha(accent, 0.1),
+                              color: accent,
+                              borderRadius: "8px",
+                              px: 1,
+                              py: 0.3,
+                              fontSize: "0.65rem",
+                              fontWeight: 800,
+                            }}
                           >
-                            <Typography
-                              variant="caption"
-                              sx={{ fontWeight: 700, opacity: 0.6 }}
-                            >
-                              {product.variants.length} loại
-                            </Typography>
-                          </Stack>
+                            {product.variants.length} gói
+                          </Box>
                         </Box>
 
                         <Button
@@ -579,7 +574,7 @@ const ProductGrid = ({
                             "&:hover": { bgcolor: accent, color: "#fff" },
                           }}
                         >
-                          Xác nhận vé
+                          Chọn gói
                         </Button>
                       </Box>
                     </CardContent>

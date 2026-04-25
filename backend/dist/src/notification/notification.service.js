@@ -27,7 +27,11 @@ let NotificationService = NotificationService_1 = class NotificationService {
         });
         if (!order)
             return;
-        this.logger.log(`📧 Gửi email xác nhận đơn hàng ${order.id} tới ${order.customerEmail}`);
+        this.logger.log(`📧 [KHÁCH HÀNG] Gửi email xác nhận đơn hàng ${order.id} tới ${order.customerEmail}`);
+        this.logger.log(`🔔 [ADMIN] Đơn hàng mới! #${order.id.slice(0, 8).toUpperCase()} | ` +
+            `${order.customerName} | ${order.customerEmail} | ` +
+            `${order.totalAmount}đ | SĐT: ${order.customerPhone}`);
+        this.logger.log(`📋 [TODO] Admin cần gửi account cho đơn hàng ${order.id} → email: ${order.customerEmail}`);
     }
     async onOrderFailed(payload) {
         const order = await this.prisma.order.findUnique({

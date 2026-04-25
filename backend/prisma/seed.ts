@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 const adapter = new PrismaBetterSqlite3({
-  url: 'file:./prisma/dev.db',
+  url: process.env.DATABASE_URL || 'file:./prisma/dev.db',
 });
 
 const prisma = new PrismaClient({ adapter });
@@ -12,7 +12,7 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000';
   
-  // 1. Sync Images from Frontend to Backend
+  // 1. Sync Images from Frontend to Backend (Skip in Docker if not available)
   const frontendPublicPath = path.join(__dirname, '../../frontend/public');
   const backendPublicPath = path.join(__dirname, '../public');
 
@@ -34,8 +34,14 @@ async function main() {
     });
   }
 
-  // 2. Read REAL Mock Data from Frontend
-  const mockFilePath = path.join(__dirname, '../../frontend/src/mock/data-product-mock.json');
+  // 2. Read REAL Mock Data
+  let mockFilePath = path.join(__dirname, '../../frontend/src/mock/data-product-mock.json');
+  
+  // Docker path check
+  if (!fs.existsSync(mockFilePath)) {
+    mockFilePath = path.join(__dirname, 'seed-data/data-product-mock.json');
+  }
+
   if (!fs.existsSync(mockFilePath)) {
     console.error('KHÔNG TÌM THẤY FILE DỮ LIỆU TẠI:', mockFilePath);
     return;

@@ -17,6 +17,7 @@ import {
   Chip,
   alpha,
   CircularProgress,
+  Alert,
 } from "@mui/material";
 import {
   Close as CloseIcon,
@@ -31,6 +32,7 @@ import {
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/store/authStore";
+import { api } from "@/lib/api";
 
 const ACCENT = "#3AB7AE";
 const DARK = "#0f172a";
@@ -49,6 +51,7 @@ export default function AuthModal({
   const [tab, setTab] = useState(defaultTab);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [registerForm, setRegisterForm] = useState({
     name: "",
@@ -59,38 +62,66 @@ export default function AuthModal({
 
   const { login } = useAuth();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
+    if (!loginForm.email || !loginForm.password) {
+      setError("Vui lòng nhập đầy đủ email và mật khẩu.");
+      return;
+    }
     setLoading(true);
-    // Mocking a login response
-    setTimeout(() => {
+    setError(null);
+    try {
+      const res = await api.auth.login({
+        email: loginForm.email,
+        password: loginForm.password,
+      });
       login(
-        {
-          id: "1",
-          name: "Guest User",
-          email: loginForm.email || "guest@example.com",
-        },
-        "mock-token-" + Date.now()
+        { id: res.user.id, name: res.user.name, email: res.user.email, avatar: res.user.avatar || undefined },
+        res.token
       );
-      setLoading(false);
       onClose();
-    }, 1500);
+    } catch (err: any) {
+      setError(err.message || "Đăng nhập thất bại. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
+    if (!registerForm.name || !registerForm.email || !registerForm.password) {
+      setError("Vui lòng nhập đầy đủ thông tin.");
+      return;
+    }
+    if (registerForm.password !== registerForm.confirm) {
+      setError("Mật khẩu xác nhận không khớp.");
+      return;
+    }
+    if (registerForm.password.length < 6) {
+      setError("Mật khẩu phải có ít nhất 6 ký tự.");
+      return;
+    }
     setLoading(true);
-    // Mocking an registration and login
-    setTimeout(() => {
+    setError(null);
+    try {
+      const res = await api.auth.register({
+        name: registerForm.name,
+        email: registerForm.email,
+        password: registerForm.password,
+      });
       login(
-        {
-          id: "2",
-          name: registerForm.name,
-          email: registerForm.email,
-        },
-        "mock-token-" + Date.now()
+        { id: res.user.id, name: res.user.name, email: res.user.email, avatar: res.user.avatar || undefined },
+        res.token
       );
-      setLoading(false);
       onClose();
-    }, 1500);
+    } catch (err: any) {
+      setError(err.message || "Đăng ký thất bại. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleTabChange = (_: any, v: number) => {
+    setTab(v);
+    setError(null);
   };
 
   return (
@@ -203,7 +234,7 @@ export default function AuthModal({
         {/* Tabs */}
         <Tabs
           value={tab}
-          onChange={(_, v) => setTab(v)}
+          onChange={handleTabChange}
           variant="fullWidth"
           sx={{
             borderBottom: "1px solid #f1f5f9",
@@ -222,6 +253,15 @@ export default function AuthModal({
         </Tabs>
 
         <Box sx={{ p: { xs: 3, sm: 4 } }}>
+          {error && (
+            <Alert
+              severity="error"
+              onClose={() => setError(null)}
+              sx={{ mb: 2, borderRadius: "12px", fontSize: "0.83rem" }}
+            >
+              {error}
+            </Alert>
+          )}
           <AnimatePresence mode="wait">
             {tab === 0 ? (
               <motion.div

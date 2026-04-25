@@ -22,36 +22,25 @@ let WebhookController = WebhookController_1 = class WebhookController {
     constructor(webhookService) {
         this.webhookService = webhookService;
     }
-    async payosWebhook(payload) {
-        this.logger.log(`Received PayOS webhook: code=${payload.code}, orderCode=${payload.data?.orderCode}`);
-        return this.webhookService.handlePayos(payload);
-    }
-    async stripeWebhook(req, signature) {
-        this.logger.log('Received Stripe webhook');
-        const rawBody = req.rawBody?.toString('utf-8') ?? '';
-        return this.webhookService.handleStripe({ rawBody }, signature);
+    async sepayWebhook(payload, authorization) {
+        this.logger.log(`📥 Received SePay webhook: amount=${payload.transferAmount}, content="${payload.content}", code="${payload.code}"`);
+        return this.webhookService.handleSepay(payload, authorization);
     }
     async bankConfirm(payload, secret) {
-        this.logger.log(`Received bank transfer confirmation for order ${payload.orderId}`);
-        return this.webhookService.handleBankTransfer(payload, secret);
+        this.logger.log(`📥 Received manual bank transfer confirmation for order ${payload.orderId}`);
+        return this.webhookService.handleManualConfirm(payload, secret);
     }
 };
 exports.WebhookController = WebhookController;
 __decorate([
-    (0, common_1.Post)('payos'),
+    (0, common_1.Post)('sepay'),
+    (0, common_1.HttpCode)(200),
     __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", Promise)
-], WebhookController.prototype, "payosWebhook", null);
-__decorate([
-    (0, common_1.Post)('stripe'),
-    __param(0, (0, common_1.Req)()),
-    __param(1, (0, common_1.Headers)('stripe-signature')),
+    __param(1, (0, common_1.Headers)('authorization')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
-], WebhookController.prototype, "stripeWebhook", null);
+], WebhookController.prototype, "sepayWebhook", null);
 __decorate([
     (0, common_1.Post)('bank-transfer/confirm'),
     __param(0, (0, common_1.Body)()),

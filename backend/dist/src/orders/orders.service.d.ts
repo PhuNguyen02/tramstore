@@ -9,7 +9,6 @@ export declare class OrdersService {
     createOrder(dto: CreateOrderDto): Promise<{
         orderId: string;
         status: string;
-        paymentUrl: string | undefined;
         qrData: string | undefined;
         bankInfo: Record<string, unknown>;
         expiredAt: Date | null;
@@ -21,22 +20,22 @@ export declare class OrdersService {
             updatedAt: Date;
             status: string;
             gatewayTxId: string | null;
-            orderId: string;
             amount: number;
             method: string;
             gatewayData: string | null;
             webhookReceivedAt: Date | null;
             webhookPayload: string | null;
+            orderId: string;
         }[];
     } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
         status: string;
+        productId: string;
         customerEmail: string;
         customerName: string | null;
         customerPhone: string | null;
-        productId: string;
         variantId: string;
         note: string | null;
         quantity: number;
@@ -51,22 +50,22 @@ export declare class OrdersService {
             updatedAt: Date;
             status: string;
             gatewayTxId: string | null;
-            orderId: string;
             amount: number;
             method: string;
             gatewayData: string | null;
             webhookReceivedAt: Date | null;
             webhookPayload: string | null;
+            orderId: string;
         }[];
     } & {
         id: string;
         createdAt: Date;
         updatedAt: Date;
         status: string;
+        productId: string;
         customerEmail: string;
         customerName: string | null;
         customerPhone: string | null;
-        productId: string;
         variantId: string;
         note: string | null;
         quantity: number;
@@ -79,10 +78,26 @@ export declare class OrdersService {
         createdAt: Date;
         updatedAt: Date;
         status: string;
+        productId: string;
         customerEmail: string;
         customerName: string | null;
         customerPhone: string | null;
+        variantId: string;
+        note: string | null;
+        quantity: number;
+        unitPrice: number;
+        totalAmount: number;
+        expiredAt: Date | null;
+    }>;
+    completeOrder(id: string): Promise<{
+        id: string;
+        createdAt: Date;
+        updatedAt: Date;
+        status: string;
         productId: string;
+        customerEmail: string;
+        customerName: string | null;
+        customerPhone: string | null;
         variantId: string;
         note: string | null;
         quantity: number;

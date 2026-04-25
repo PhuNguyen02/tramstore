@@ -33,6 +33,9 @@ let OrdersController = class OrdersController {
     cancel(id) {
         return this.ordersService.cancelOrder(id);
     }
+    complete(id) {
+        return this.ordersService.completeOrder(id);
+    }
 };
 exports.OrdersController = OrdersController;
 __decorate([
@@ -63,6 +66,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "cancel", null);
+__decorate([
+    (0, common_1.Patch)(':id/complete'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], OrdersController.prototype, "complete", null);
 exports.OrdersController = OrdersController = __decorate([
     (0, common_1.Controller)('orders'),
     __metadata("design:paramtypes", [orders_service_1.OrdersService])

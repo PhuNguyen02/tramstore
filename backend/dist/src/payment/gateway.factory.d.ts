@@ -1,13 +1,9 @@
 import { IPaymentGateway } from './interfaces/payment-gateway.interface';
-import { PayosGateway } from './gateways/payos.gateway';
-import { StripeGateway } from './gateways/stripe.gateway';
+import { VietqrGateway } from './gateways/vietqr.gateway';
 import { BankTransferGateway } from './gateways/bank-transfer.gateway';
-import { PaypalGateway } from './gateways/paypal.gateway';
 export declare class GatewayFactory {
-    private payos;
-    private stripe;
+    private vietqr;
     private bankTransfer;
-    private paypal;
-    constructor(payos: PayosGateway, stripe: StripeGateway, bankTransfer: BankTransferGateway, paypal: PaypalGateway);
+    constructor(vietqr: VietqrGateway, bankTransfer: BankTransferGateway);
     getGateway(method: string): IPaymentGateway;
 }

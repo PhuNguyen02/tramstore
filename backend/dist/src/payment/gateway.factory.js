@@ -11,37 +11,23 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GatewayFactory = void 0;
 const common_1 = require("@nestjs/common");
-const payos_gateway_1 = require("./gateways/payos.gateway");
-const stripe_gateway_1 = require("./gateways/stripe.gateway");
+const vietqr_gateway_1 = require("./gateways/vietqr.gateway");
 const bank_transfer_gateway_1 = require("./gateways/bank-transfer.gateway");
-const paypal_gateway_1 = require("./gateways/paypal.gateway");
 const PaymentMethod = {
+    VIETQR: 'VIETQR',
     BANK_TRANSFER: 'BANK_TRANSFER',
-    PAYOS: 'PAYOS',
-    VNPAY: 'VNPAY',
-    MOMO: 'MOMO',
-    STRIPE: 'STRIPE',
-    PAYPAL: 'PAYPAL',
 };
 let GatewayFactory = class GatewayFactory {
-    payos;
-    stripe;
+    vietqr;
     bankTransfer;
-    paypal;
-    constructor(payos, stripe, bankTransfer, paypal) {
-        this.payos = payos;
-        this.stripe = stripe;
+    constructor(vietqr, bankTransfer) {
+        this.vietqr = vietqr;
         this.bankTransfer = bankTransfer;
-        this.paypal = paypal;
     }
     getGateway(method) {
         const map = {
-            [PaymentMethod.PAYOS]: this.payos,
-            [PaymentMethod.VNPAY]: this.payos,
-            [PaymentMethod.MOMO]: this.payos,
-            [PaymentMethod.STRIPE]: this.stripe,
-            [PaymentMethod.PAYPAL]: this.paypal,
-            [PaymentMethod.BANK_TRANSFER]: this.bankTransfer,
+            [PaymentMethod.VIETQR]: this.vietqr,
+            [PaymentMethod.BANK_TRANSFER]: this.vietqr,
         };
         const gateway = map[method];
         if (!gateway) {
@@ -53,9 +39,7 @@ let GatewayFactory = class GatewayFactory {
 exports.GatewayFactory = GatewayFactory;
 exports.GatewayFactory = GatewayFactory = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [payos_gateway_1.PayosGateway,
-        stripe_gateway_1.StripeGateway,
-        bank_transfer_gateway_1.BankTransferGateway,
-        paypal_gateway_1.PaypalGateway])
+    __metadata("design:paramtypes", [vietqr_gateway_1.VietqrGateway,
+        bank_transfer_gateway_1.BankTransferGateway])
 ], GatewayFactory);
 //# sourceMappingURL=gateway.factory.js.map

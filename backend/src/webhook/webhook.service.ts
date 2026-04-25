@@ -12,7 +12,7 @@ export class WebhookService {
     private prisma: PrismaService,
     private gatewayFactory: GatewayFactory,
     private eventEmitter: EventEmitter2,
-  ) {}
+  ) { }
 
   /**
    * Xử lý webhook từ SePay
@@ -131,11 +131,11 @@ export class WebhookService {
    * Nội dung CK format: TS{8 ký tự} (ví dụ: TSABCD1234)
    */
   private async findPaymentByTransferContent(content: string, code: string) {
-    // Thử tìm theo code trước (SePay đã parse)
+    // 1. Thử tìm theo code trước (SePay đã parse code từ nội dung CK)
     if (code) {
       const byCode = await this.prisma.payment.findFirst({
         where: {
-          gatewayTxId: { contains: code },
+          gatewayTxId: code,
           status: 'INITIATED',
         },
         include: { order: true },
@@ -143,37 +143,19 @@ export class WebhookService {
       if (byCode) return byCode;
     }
 
-    // Tìm trong content gốc - extract mã TS từ nội dung
+    // 2. Nếu không thấy, extract mã TS từ content gốc
+    // Nội dung CK format: TS{8 ký tự} (ví dụ: TSABCD1234)
     const tsMatch = content.match(/TS([A-Z0-9]{8})/);
     if (tsMatch) {
-      const tsCode = `TS${tsMatch[1]}`;
+      const tsCode = tsMatch[0]; // "TSABCD1234"
       const byContent = await this.prisma.payment.findFirst({
         where: {
-          gatewayTxId: { contains: tsCode },
+          gatewayTxId: tsCode,
           status: 'INITIATED',
         },
         include: { order: true },
       });
       if (byContent) return byContent;
-    }
-
-    // Tìm theo gatewayTxId prefix VQR_
-    // gatewayTxId format: VQR_{orderId}
-    // Nội dung CK chứa TS{8 ký tự cuối orderId}
-    if (tsMatch) {
-      const shortId = tsMatch[1]; // 8 ký tự cuối của orderId (không dấu -)
-      // Tìm tất cả payments đang INITIATED và so khớp
-      const allPending = await this.prisma.payment.findMany({
-        where: { status: 'INITIATED', method: 'VIETQR' },
-        include: { order: true },
-      });
-
-      for (const p of allPending) {
-        const orderShortId = p.orderId.replace(/-/g, '').slice(-8).toUpperCase();
-        if (orderShortId === shortId) {
-          return p;
-        }
-      }
     }
 
     return null;

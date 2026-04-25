@@ -25,65 +25,90 @@ let WebhookService = WebhookService_1 = class WebhookService {
         this.gatewayFactory = gatewayFactory;
         this.eventEmitter = eventEmitter;
     }
-    async handlePayos(payload) {
-        const gateway = this.gatewayFactory.getGateway('PAYOS');
-        const signature = payload['signature'] || '';
-        if (!gateway.verifyWebhook(payload, signature)) {
-            this.logger.warn('PayOS webhook: chữ ký không hợp lệ');
-            return { success: false, message: 'Invalid signature' };
+    async handleSepay(payload, authorization) {
+        const gateway = this.gatewayFactory.getGateway('VIETQR');
+        const apiKey = authorization?.replace(/^Apikey\s+/i, '') || authorization || '';
+        if (!gateway.verifyWebhook(payload, apiKey)) {
+            this.logger.warn('❌ SePay webhook: API key không hợp lệ');
+            return { success: false, message: 'Invalid API key' };
         }
-        const data = payload['data'];
-        if (!data) {
-            this.logger.warn('PayOS webhook: không có data');
-            return { success: false, message: 'No data' };
+        if (payload.transferType && payload.transferType !== 'in') {
+            this.logger.log('ℹ️ SePay webhook: bỏ qua giao dịch tiền ra');
+            return { success: true, message: 'Ignored outgoing transaction' };
         }
-        const orderCode = String(data.orderCode);
-        const isSuccess = payload['success'] === true && payload['code'] === '00';
-        this.logger.log(`PayOS webhook: orderCode=${orderCode}, success=${isSuccess}, code=${payload['code']}`);
-        const payment = await this.prisma.payment.findFirst({
-            where: { gatewayTxId: orderCode },
-            include: { order: true },
-        });
+        const transferAmount = Number(payload.transferAmount);
+        const content = String(payload.content || '').toUpperCase();
+        const code = String(payload.code || '').toUpperCase();
+        const referenceCode = payload.referenceCode || '';
+        this.logger.log(`💰 SePay: amount=${transferAmount}, content="${content}", code="${code}", ref="${referenceCode}"`);
+        const payment = await this.findPaymentByTransferContent(content, code);
         if (!payment) {
-            this.logger.warn(`PayOS webhook: không tìm thấy payment với gatewayTxId=${orderCode}`);
-            return { success: true };
+            this.logger.warn(`⚠️ SePay webhook: không tìm thấy payment cho content="${content}", code="${code}"`);
+            return { success: true, message: 'No matching order found' };
         }
-        await this.updateOrderPaymentStatus(payment.orderId, isSuccess, payload);
+        const expectedAmount = Number(payment.amount);
+        if (Math.abs(transferAmount - expectedAmount) > 1) {
+            this.logger.warn(`⚠️ SePay: số tiền không khớp! expected=${expectedAmount}, received=${transferAmount}`);
+        }
+        await this.updateOrderPaymentStatus(payment.orderId, true, {
+            sepayId: payload.id,
+            gateway: payload.gateway,
+            transactionDate: payload.transactionDate,
+            transferAmount,
+            content,
+            referenceCode,
+        });
         return { success: true };
     }
-    async handleStripe(payload, signature) {
-        const gateway = this.gatewayFactory.getGateway('STRIPE');
-        if (!gateway.verifyWebhook(payload, signature)) {
-            this.logger.warn('Stripe webhook: chữ ký không hợp lệ');
-            throw new Error('Invalid Stripe signature');
-        }
-        const event = payload;
-        const orderId = event.data.object.metadata.orderId;
-        const isSuccess = event.data.object.payment_status === 'paid';
-        await this.updateOrderPaymentStatus(orderId, isSuccess, payload);
-        return { received: true };
-    }
-    async handleBankTransfer(payload, secret) {
+    async handleManualConfirm(payload, secret) {
         const gateway = this.gatewayFactory.getGateway('BANK_TRANSFER');
         if (!gateway.verifyWebhook(payload, secret)) {
-            this.logger.warn('Bank transfer webhook: secret không hợp lệ');
+            this.logger.warn('❌ Manual confirm: secret không hợp lệ');
             throw new Error('Invalid secret');
         }
         await this.updateOrderPaymentStatus(payload.orderId, true, {
             txId: payload.txId,
+            manual: true,
         });
         return { success: true };
+    }
+    async findPaymentByTransferContent(content, code) {
+        if (code) {
+            const byCode = await this.prisma.payment.findFirst({
+                where: {
+                    gatewayTxId: code,
+                    status: 'INITIATED',
+                },
+                include: { order: true },
+            });
+            if (byCode)
+                return byCode;
+        }
+        const tsMatch = content.match(/TS([A-Z0-9]{8})/);
+        if (tsMatch) {
+            const tsCode = tsMatch[0];
+            const byContent = await this.prisma.payment.findFirst({
+                where: {
+                    gatewayTxId: tsCode,
+                    status: 'INITIATED',
+                },
+                include: { order: true },
+            });
+            if (byContent)
+                return byContent;
+        }
+        return null;
     }
     async updateOrderPaymentStatus(orderId, isSuccess, rawPayload) {
         const order = await this.prisma.order.findUnique({
             where: { id: orderId },
         });
         if (!order) {
-            this.logger.error(`Webhook: không tìm thấy order ${orderId}`);
+            this.logger.error(`❌ Webhook: không tìm thấy order ${orderId}`);
             return;
         }
         if (order.status === 'PAID' || order.status === 'FAILED') {
-            this.logger.log(`Order ${orderId} đã được xử lý trước đó (${order.status}), bỏ qua`);
+            this.logger.log(`ℹ️ Order ${orderId} đã được xử lý trước đó (${order.status}), bỏ qua`);
             return;
         }
         const newStatus = isSuccess ? 'PAID' : 'FAILED';

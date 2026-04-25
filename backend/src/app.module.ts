@@ -10,6 +10,7 @@ import { OrdersModule } from './orders/orders.module';
 import { PaymentModule } from './payment/payment.module';
 import { WebhookModule } from './webhook/webhook.module';
 import { NotificationModule } from './notification/notification.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { NotificationModule } from './notification/notification.module';
     PaymentModule,
     WebhookModule,
     NotificationModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

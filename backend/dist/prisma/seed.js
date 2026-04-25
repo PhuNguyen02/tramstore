@@ -38,7 +38,7 @@ const adapter_better_sqlite3_1 = require("@prisma/adapter-better-sqlite3");
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
 const adapter = new adapter_better_sqlite3_1.PrismaBetterSqlite3({
-    url: 'file:./prisma/dev.db',
+    url: process.env.DATABASE_URL || 'file:./prisma/dev.db',
 });
 const prisma = new client_1.PrismaClient({ adapter });
 async function main() {
@@ -62,7 +62,10 @@ async function main() {
             }
         });
     }
-    const mockFilePath = path.join(__dirname, '../../frontend/src/mock/data-product-mock.json');
+    let mockFilePath = path.join(__dirname, '../../frontend/src/mock/data-product-mock.json');
+    if (!fs.existsSync(mockFilePath)) {
+        mockFilePath = path.join(__dirname, 'seed-data/data-product-mock.json');
+    }
     if (!fs.existsSync(mockFilePath)) {
         console.error('KHÔNG TÌM THẤY FILE DỮ LIỆU TẠI:', mockFilePath);
         return;

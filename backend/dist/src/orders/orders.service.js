@@ -34,6 +34,7 @@ let OrdersService = OrdersService_1 = class OrdersService {
             throw new common_1.BadRequestException('Variant không thuộc sản phẩm đã chọn');
         }
         const totalAmount = variant.price;
+        const paymentMethod = dto.paymentMethod || 'VIETQR';
         const expiredAt = new Date(Date.now() + 15 * 60 * 1000);
         const order = await this.prisma.order.create({
             data: {
@@ -49,8 +50,8 @@ let OrdersService = OrdersService_1 = class OrdersService {
                 expiredAt,
             },
         });
-        this.logger.log(`Order created: ${order.id} | ${variant.product.name} - ${variant.name} | ${totalAmount}đ`);
-        const paymentResult = await this.paymentService.initiatePayment(order, dto.paymentMethod);
+        this.logger.log(`🛒 Order created: ${order.id} | ${variant.product.name} - ${variant.name} | ${totalAmount}đ`);
+        const paymentResult = await this.paymentService.initiatePayment(order, paymentMethod);
         await this.prisma.order.update({
             where: { id: order.id },
             data: { status: 'AWAITING_PAYMENT' },
@@ -58,7 +59,6 @@ let OrdersService = OrdersService_1 = class OrdersService {
         return {
             orderId: order.id,
             status: 'AWAITING_PAYMENT',
-            paymentUrl: paymentResult.redirectUrl,
             qrData: paymentResult.qrData,
             bankInfo: paymentResult.rawResponse,
             expiredAt: order.expiredAt,
@@ -94,6 +94,21 @@ let OrdersService = OrdersService_1 = class OrdersService {
         return this.prisma.order.update({
             where: { id },
             data: { status: 'CANCELLED' },
+        });
+    }
+    async completeOrder(id) {
+        const order = await this.prisma.order.findUnique({
+            where: { id },
+        });
+        if (!order) {
+            throw new common_1.NotFoundException(`Order ${id} không tồn tại`);
+        }
+        if (order.status !== 'PAID') {
+            throw new common_1.BadRequestException('Chỉ có thể hoàn tất đơn hàng đã thanh toán');
+        }
+        return this.prisma.order.update({
+            where: { id },
+            data: { status: 'COMPLETED' },
         });
     }
 };
