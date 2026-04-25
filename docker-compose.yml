@@ -2,86 +2,41 @@ version: "3.8"
 
 services:
   # ═══════════════════════════════════════════
-  # 🐬 MySQL Database
-  # ═══════════════════════════════════════════
-  mysql:
-    image: mysql:8.0
-    container_name: tramstore-mysql
-    restart: unless-stopped
-    ports:
-      - "3306:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-    volumes:
-      - mysql_data:/var/lib/mysql
-    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # ═══════════════════════════════════════════
-  # 🔵 phpMyAdmin (Dev Tool)
-  # ═══════════════════════════════════════════
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: tramstore-phpmyadmin
-    restart: unless-stopped
-    ports:
-      - "8080:80"
-    environment:
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    depends_on:
-      mysql:
-        condition: service_healthy
-
-  # ═══════════════════════════════════════════
-  # 🟢 Backend (NestJS API)
+  # 🟢 Backend (NestJS API + SQLite)
   # ═══════════════════════════════════════════
   backend:
     build:
-      context: .
-      dockerfile: ./backend/Dockerfile
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: tramstore-backend
     restart: unless-stopped
-    ports:
-      - "${BACKEND_PORT}:${BACKEND_PORT}"
+    env_file: .env
     environment:
-      - NODE_ENV=${NODE_ENV}
-      - PORT=${BACKEND_PORT}
-      - API_PREFIX=${API_PREFIX}
-      - DATABASE_URL=${DATABASE_URL}
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
-      - CORS_ORIGIN=${CORS_ORIGIN}
-      - CORS_CREDENTIALS=true
-    depends_on:
-      mysql:
-        condition: service_healthy
+      - PORT=4000
+      - DATABASE_URL=file:/app/data/dev.db
+    volumes:
+      - ./backend/data:/app/data
+    ports:
+      - "4000:4000"
 
   # ═══════════════════════════════════════════
-  # 🟠 Frontend (Next.js)
+  # 🟠 Frontend (Next.js Standalone)
   # ═══════════════════════════════════════════
   frontend:
     build:
-      context: .
-      dockerfile: ./frontend/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile
       args:
         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
     container_name: tramstore-frontend
     restart: unless-stopped
-    ports:
-      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    env_file: .env
     environment:
-      - NODE_ENV=${NODE_ENV}
+      - NODE_ENV=production
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    ports:
+      - "3000:3000"
     depends_on:
       - backend
 
-volumes:
-  mysql_data:
-    driver: local
+# Note: Dữ liệu SQLite được lưu tại ./backend/data/dev.db trên máy host

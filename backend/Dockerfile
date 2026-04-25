@@ -1,35 +1,59 @@
-# Stage 1: Build
-FROM node:20-alpine AS builder
-
+# ════════════════════════════════════════════════
+# Stage 1: Install dependencies
+# ════════════════════════════════════════════════
+FROM node:20-alpine AS deps
 WORKDIR /app
 
-# Copy package files (Context is root)
-COPY backend/package*.json ./
-RUN npm install
+# Install build deps for native modules (better-sqlite3)
+RUN apk add --no-cache python3 make g++
 
-# Copy backend source
-COPY backend/ .
+COPY package*.json ./
+RUN npm ci --only=production
 
-# Copy mock data from frontend for seeding
-COPY frontend/src/mock/data-product-mock.json ./prisma/seed-data/
+# Separate install for devDeps (needed for build)
+COPY package*.json ./
+RUN npm ci
 
-# Generate Prisma client and build
+# ════════════════════════════════════════════════
+# Stage 2: Build
+# ════════════════════════════════════════════════
+FROM node:20-alpine AS builder
+RUN apk add --no-cache python3 make g++
+
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Generate Prisma Client
 RUN npx prisma generate
+
+# Build NestJS
 RUN npm run build
 
-# Stage 2: Production
-FROM node:20-alpine
+# ════════════════════════════════════════════════
+# Stage 3: Production runner
+# ════════════════════════════════════════════════
+FROM node:20-alpine AS runner
+RUN apk add --no-cache python3 make g++
 
 WORKDIR /app
 
-# Copy built application and prisma
+ENV NODE_ENV=production
+
+# Copy build output
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/public ./public
+
+# Create data directory for SQLite (persistent volume mount point)
+RUN mkdir -p /app/data
+
+# Entrypoint script to run migrations + seed + start
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
+RUN chmod +x ./docker-entrypoint.sh
 
 EXPOSE 4000
 
-# CMD to push DB schema, seed, and start
-# Note: We keep all node_modules to ensure ts-node is available for seeding
-CMD ["sh", "-c", "npx prisma db push --accept-data-loss && npx prisma db seed && node dist/main"]
+CMD ["./docker-entrypoint.sh"]

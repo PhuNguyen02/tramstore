@@ -1,6 +1,7 @@
 node_modules
 dist
-.env
 .git
-.gitignore
-*.md
+.env
+*.db
+*.db-journal
+npm-debug.log
