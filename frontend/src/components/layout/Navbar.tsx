@@ -261,7 +261,6 @@ const Navbar = () => {
                 <Stack direction="row" spacing={1} alignItems="center">
                   <Box
                     sx={{
-                      display: "flex",
                       flexDirection: "column",
                       alignItems: "flex-end",
                       display: { xs: "none", lg: "flex" }
