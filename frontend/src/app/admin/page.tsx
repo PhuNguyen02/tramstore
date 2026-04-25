@@ -24,6 +24,7 @@ import {
   MenuItem,
   Avatar,
   Divider,
+  PaletteColor,
 } from "@mui/material";
 import {
   TrendingUp,
@@ -38,40 +39,47 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 
-const stats = [
-  {
-    title: "Tổng doanh thu",
-    value: "128,450,000₫",
-    change: "+12.5%",
-    isUp: true,
-    icon: CreditCard,
-    color: "primary",
-  },
-  {
-    title: "Đơn hàng mới",
-    value: "256",
-    change: "+18.2%",
-    isUp: true,
-    icon: ShoppingBag,
-    color: "success",
-  },
-  {
-    title: "Khách hàng mới",
-    value: "1,240",
-    change: "-3.1%",
-    isUp: false,
-    icon: Users,
-    color: "secondary",
-  },
-  {
-    title: "Lượt truy cập",
-    value: "45,678",
-    change: "+24.5%",
-    isUp: true,
-    icon: TrendingUp,
-    color: "warning",
-  },
-];
+const stats: {
+  title: string;
+  value: string;
+  change: string;
+  isUp: boolean;
+  icon: any;
+  color: "primary" | "secondary" | "success" | "warning" | "error" | "info";
+}[] = [
+    {
+      title: "Tổng doanh thu",
+      value: "128,450,000₫",
+      change: "+12.5%",
+      isUp: true,
+      icon: CreditCard,
+      color: "primary",
+    },
+    {
+      title: "Đơn hàng mới",
+      value: "256",
+      change: "+18.2%",
+      isUp: true,
+      icon: ShoppingBag,
+      color: "success",
+    },
+    {
+      title: "Khách hàng mới",
+      value: "1,240",
+      change: "-3.1%",
+      isUp: false,
+      icon: Users,
+      color: "secondary",
+    },
+    {
+      title: "Lượt truy cập",
+      value: "45,678",
+      change: "+24.5%",
+      isUp: true,
+      icon: TrendingUp,
+      color: "warning",
+    },
+  ];
 
 const recentOrders = [
   { id: "#TRM1234", customer: "Nguyễn Văn A", product: "Gói Netflix 1 Năm", amount: "250,000₫", status: "Completed", date: "10/04/2024" },
@@ -122,7 +130,7 @@ export default function Dashboard() {
       {/* Stats Grid */}
       <Grid container spacing={3}>
         {stats.map((stat, index) => (
-          <Grid item xs={12} sm={6} lg={3} key={stat.title}>
+          <Grid size={{ xs: 12, sm: 6, lg: 3 }} key={stat.title}>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -145,7 +153,7 @@ export default function Dashboard() {
                       sx={{
                         p: 1.5,
                         borderRadius: 3,
-                        bgcolor: alpha(theme.palette[stat.color as any].main, 0.1),
+                        bgcolor: alpha((theme.palette[stat.color] as PaletteColor).main, 0.1),
                         color: `${stat.color}.main`,
                       }}
                     >
@@ -182,7 +190,7 @@ export default function Dashboard() {
 
       <Grid container spacing={3}>
         {/* Chart Section */}
-        <Grid item xs={12} lg={8}>
+        <Grid size={{ xs: 12, lg: 8 }}>
           <Card elevation={0} sx={{ borderRadius: 4, border: "1px solid", borderColor: "divider", height: "100%" }}>
             <CardContent sx={{ p: 4 }}>
               <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
@@ -197,7 +205,7 @@ export default function Dashboard() {
                   <MenuItem value="1y">Năm nay</MenuItem>
                 </Select>
               </Stack>
-              
+
               <Box sx={{ height: 260, display: "flex", alignItems: "flex-end", gap: 1, px: 2 }}>
                 {[40, 65, 45, 90, 55, 75, 50, 85, 60, 95, 40, 70].map((height, i) => (
                   <Box
@@ -228,7 +236,7 @@ export default function Dashboard() {
         </Grid>
 
         {/* Recent Activity */}
-        <Grid item xs={12} lg={4}>
+        <Grid size={{ xs: 12, lg: 4 }}>
           <Card elevation={0} sx={{ borderRadius: 4, border: "1px solid", borderColor: "divider" }}>
             <CardContent sx={{ p: 4 }}>
               <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
@@ -266,15 +274,15 @@ export default function Dashboard() {
                           fontSize: 9,
                           fontWeight: 800,
                           mt: 0.5,
-                          bgcolor: 
+                          bgcolor:
                             order.status === 'Completed' ? alpha(theme.palette.success.main, 0.1) :
-                            order.status === 'Processing' ? alpha(theme.palette.primary.main, 0.1) :
-                            order.status === 'Pending' ? alpha(theme.palette.warning.main, 0.1) :
-                            alpha(theme.palette.error.main, 0.1),
-                          color: 
-                             order.status === 'Completed' ? "success.main" :
-                             order.status === 'Processing' ? "primary.main" :
-                             order.status === 'Pending' ? "warning.dark" : "error.main",
+                              order.status === 'Processing' ? alpha(theme.palette.primary.main, 0.1) :
+                                order.status === 'Pending' ? alpha(theme.palette.warning.main, 0.1) :
+                                  alpha(theme.palette.error.main, 0.1),
+                          color:
+                            order.status === 'Completed' ? "success.main" :
+                              order.status === 'Processing' ? "primary.main" :
+                                order.status === 'Pending' ? "warning.dark" : "error.main",
                         }}
                       />
                     </Box>

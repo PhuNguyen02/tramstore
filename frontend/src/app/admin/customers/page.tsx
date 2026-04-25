@@ -65,7 +65,7 @@ export default function CustomersPage() {
 
       <Grid container spacing={3}>
         {customers.map((customer, index) => (
-          <Grid item xs={12} sm={6} lg={4} key={customer.id}>
+          <Grid size={{ xs: 12, sm: 6, lg: 4 }} key={customer.id}>
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -93,9 +93,9 @@ export default function CustomersPage() {
                     left: 0,
                     width: 4,
                     height: "100%",
-                    bgcolor: 
+                    bgcolor:
                       customer.status === "Active" ? "success.main" :
-                      customer.status === "New" ? "primary.main" : "text.disabled",
+                        customer.status === "New" ? "primary.main" : "text.disabled",
                   }}
                 />
 
@@ -124,12 +124,12 @@ export default function CustomersPage() {
                             fontSize: 9,
                             fontWeight: 800,
                             mt: 0.5,
-                            bgcolor: 
+                            bgcolor:
                               customer.status === 'Active' ? alpha(theme.palette.success.main, 0.1) :
-                              customer.status === 'New' ? alpha(theme.palette.primary.main, 0.1) : "action.hover",
-                            color: 
+                                customer.status === 'New' ? alpha(theme.palette.primary.main, 0.1) : "action.hover",
+                            color:
                               customer.status === 'Active' ? "success.main" :
-                              customer.status === 'New' ? "primary.main" : "text.secondary",
+                                customer.status === 'New' ? "primary.main" : "text.secondary",
                           }}
                         />
                       </Box>
@@ -157,14 +157,14 @@ export default function CustomersPage() {
                   <Divider sx={{ mb: 3, borderStyle: "dashed" }} />
 
                   <Grid container spacing={2} sx={{ mb: 3 }}>
-                    <Grid item xs={6}>
+                    <Grid size={{ xs: 6 }}>
                       <Typography variant="caption" sx={{ fontWeight: 800, color: "text.disabled", textTransform: "uppercase" }}>Đơn hàng</Typography>
                       <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 0.5 }}>
                         <ShoppingBag size={16} color={theme.palette.primary.main} />
                         <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{customer.orders}</Typography>
                       </Stack>
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid size={{ xs: 6 }}>
                       <Typography variant="caption" sx={{ fontWeight: 800, color: "text.disabled", textTransform: "uppercase" }}>Tổng chi</Typography>
                       <Typography variant="subtitle2" sx={{ fontWeight: 800, mt: 0.5 }}>{customer.totalSpent}</Typography>
                     </Grid>
@@ -193,7 +193,7 @@ export default function CustomersPage() {
           </Grid>
         ))}
 
-        <Grid item xs={12} sm={6} lg={4}>
+        <Grid size={{ xs: 12, sm: 6, lg: 4 }}>
           <Box
             sx={{
               height: "100%",
