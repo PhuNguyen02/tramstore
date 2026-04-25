@@ -8,22 +8,12 @@ import {
   CardContent,
   Stack,
   Button,
-  IconButton,
-  Tooltip,
   alpha,
   useTheme,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Chip,
   Select,
   MenuItem,
   Avatar,
-  Divider,
   PaletteColor,
 } from "@mui/material";
 import {
@@ -33,10 +23,10 @@ import {
   CreditCard,
   ArrowUpRight,
   ArrowDownRight,
-  MoreVertical,
   Download,
   Plus,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 
 const stats: {
@@ -44,7 +34,7 @@ const stats: {
   value: string;
   change: string;
   isUp: boolean;
-  icon: any;
+  icon: LucideIcon;
   color: "primary" | "secondary" | "success" | "warning" | "error" | "info";
 }[] = [
     {

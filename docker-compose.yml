@@ -18,6 +18,11 @@ services:
       - ./backend/data:/app/data
     ports:
       - "4000:4000"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # ═══════════════════════════════════════════
   # 🟠 Frontend (Next.js Standalone)
@@ -36,6 +41,11 @@ services:
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
     ports:
       - "3000:3000"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     depends_on:
       - backend
 

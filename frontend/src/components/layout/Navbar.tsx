@@ -20,6 +20,7 @@ import {
   alpha,
   Tooltip,
   Stack,
+  SvgIconProps,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -36,7 +37,7 @@ import {
   HelpOutline as HelpIcon,
   Translate as LangIcon,
 } from "@mui/icons-material";
-import { styled, keyframes } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/store/cartStore";
@@ -47,10 +48,7 @@ import { useRouter } from "next/navigation";
 /* ══════════════════════════════════════════════════════
    ⭐ ANIMATIONS & KEYFRAMES
    ══════════════════════════════════════════════════════ */
-const shimmer = keyframes`
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-`;
+
 
 /* ══════════════════════════════════════════════════════
    🏙️ STYLED COMPONENTS
@@ -141,6 +139,12 @@ const Navbar = () => {
   const pathname = usePathname();
   const { totalItems, openDrawer } = useCart();
   const { isAuthenticated, user, logout } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -257,7 +261,7 @@ const Navbar = () => {
                 </Button>
               </Tooltip>
 
-              {isAuthenticated ? (
+              {mounted && isAuthenticated ? (
                 <Stack direction="row" spacing={1} alignItems="center">
                   <Box
                     sx={{
@@ -327,7 +331,7 @@ const Navbar = () => {
                 <StationLink key={item.name} href={item.href} active={pathname === item.href}>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
                     <Box className="link-icon" sx={{ transition: "all 0.3s ease", display: "flex", color: pathname === item.href ? "primary.main" : "inherit" }}>
-                      {React.cloneElement(item.icon as React.ReactElement<any>, { sx: { fontSize: 18 } })}
+                      {React.cloneElement(item.icon as React.ReactElement<SvgIconProps>, { sx: { fontSize: 18 } })}
                     </Box>
                     <Typography variant="subtitle2" sx={{ fontWeight: 800, letterSpacing: -0.2 }}>{item.name}</Typography>
                   </Box>

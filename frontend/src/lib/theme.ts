@@ -1,6 +1,6 @@
 "use client";
 
-import { createTheme } from "@mui/material/styles";
+import { createTheme, Shadows } from "@mui/material/styles";
 
 const theme = createTheme({
   palette: {
@@ -52,7 +52,7 @@ const theme = createTheme({
     "0px 10px 15px -3px rgba(0, 0, 0, 0.1), 0px 4px 6px -2px rgba(0, 0, 0, 0.05)",
     "0px 20px 25px -5px rgba(0, 0, 0, 0.1), 0px 10px 10px -5px rgba(0, 0, 0, 0.04)",
     ...Array(20).fill("none"), // Fill the rest to satisfy MUI
-  ] as any,
+  ] as Shadows,
   components: {
     MuiButton: {
       styleOverrides: {
